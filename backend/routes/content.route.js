@@ -1,12 +1,13 @@
 import express from "express";
 import {ContentController} from "../controllers";
+import { ContentMiddleware } from "../middlewares";
 
 const router = express.Router();
 
-router.post('/', ContentController.createContent);
-router.get('/', ContentController.getContents);
-router.get('/:id', ContentController.getContentById);
-router.put('/:id', ContentController.updateContent);
-router.delete('/:id', ContentController.deleteContent);
+router.post('/', ContentMiddleware.validateCreateContent ,ContentController.createContent);
+router.get('/', ContentMiddleware.validateCreateContent ,ContentController.getContents);
+router.get('/:id', ContentMiddleware.validateGetContentById ,ContentController.getContentById);
+router.put('/:id', ContentMiddleware.validateUpdateContent ,ContentController.updateContent);
+router.delete('/:id', ContentMiddleware.validateDeleteContent ,ContentController.deleteContent);
 
 export default router;

@@ -1,12 +1,13 @@
 import express from "express";
 import {PageController} from "../controllers";
+import { PageMiddleware } from "../middlewares";
 
 const router = express.Router();
 
-router.post('/', PageController.createPage);
-router.get('/', PageController.getPages);
-router.get('/:id', PageController.getPageById);
-router.put('/:id', PageController.updatePage);
-router.delete('/:id', PageController.deletePage);
+router.post('/',PageMiddleware.validateCreatePage, PageController.createPage);
+router.get('/',PageMiddleware.validateGetPages,PageController.getPages);
+router.get('/:id',PageMiddleware.validateGetPageById ,PageController.getPageById);
+router.put('/:id',PageMiddleware.validateUpdatePage,PageController.updatePage);
+router.delete('/:id',PageMiddleware.validateDeletePage,PageController.deletePage);
 
 export default router;

@@ -84,3 +84,11 @@ const validateGetUsers = (req, res, next) => {
     next();
 };
 
+export {
+    validateCreateUser,
+    validateGetUsers,
+    validateGetUserById,
+    validateUpdateUser,
+    validateDeleteUser
+}
+
