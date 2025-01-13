@@ -1,4 +1,5 @@
-import { Schema } from "mongoose";
+import mongoose from "mongoose";
+const Schema = mongoose.Schema;
 
 const DomainSchema = new Schema({
     user_id: {
@@ -21,4 +22,6 @@ const DomainSchema = new Schema({
     }
 });
 
-module.exports = mongoose.model('Domain', DomainSchema);
+const Domain = mongoose.model('Domain', DomainSchema);
+
+export default Domain;

@@ -1,4 +1,4 @@
-import Section from '../models/Section';
+import Section from '../models/section.model.js';
 
 // Create a new section
 export const createSection = (req, res) => {

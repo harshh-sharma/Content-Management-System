@@ -1,4 +1,5 @@
-import mongoose ,{Schema} from "mongoose";
+import mongoose from "mongoose";
+const Schema = mongoose.Schema;
 
 const PageSchema = new Schema({
     domain_id: {
@@ -24,4 +25,6 @@ const PageSchema = new Schema({
     }
 });
 
-module.exports = mongoose.model('Page', PageSchema);
+const Page = mongoose.model('Page', PageSchema);
+
+export default Page;

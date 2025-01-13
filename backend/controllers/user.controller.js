@@ -1,12 +1,57 @@
-const User = require('../models/User');
-
+import User from "../models/user.model.js"
 // Create a new user
-export const createUser = (req, res) => {
+export const createUser = async (req, res) => {
     const user = new User(req.body);
     user.save()
         .then(newUser => res.json(newUser))
         .catch(err => res.status(400).json(err));
 };
+
+
+export const loginUser = async (req,res) => {
+    const {email,password} = req.body;
+    try {
+        const isUserExist = await User.findOne({email}).select('+password');
+
+        if(!isUserExist){
+            return res.status(400).json({
+                success:false,
+                message:"user are not found"
+            })
+        }
+
+        const isPasswordCorrect = await isUserExist.correctPassword(password);
+
+        if(!isPasswordCorrect){
+            return res.status(400).json({
+                success:false,
+                message:"invalid Password"
+            })
+        }
+
+        const token = await isUserExist.generateJWTToken();
+
+        if(!token){
+            return res.status(500).json({
+                success:false,
+                message:'Something went wrong Please try again'
+            })
+        }
+
+        return res.status(200).json({
+            success:true,
+            message:"User successfully loggedIn",
+            token
+        })
+
+
+    } catch (error) {
+        return res.status(500).json({
+            success:false,
+            message:error.message
+        })
+    }
+}
 
 // Get all users
 export const getUsers = (req, res) => {

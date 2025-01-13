@@ -1,4 +1,6 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose from "mongoose";
+const Schema = mongoose.Schema;
+
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
@@ -42,6 +44,8 @@ userSchema.pre("save", async function(next) {
 });
 
 userSchema.methods.correctPassword = async function(password) {
+    console.log(this.password);
+    
     return await bcrypt.compare(password, this.password);
 };
 
@@ -60,4 +64,6 @@ userSchema.methods.generatePasswordResetToken = async function() {
     return resetToken;
 };
 
-export const User = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+
+export default User;

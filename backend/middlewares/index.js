@@ -1,8 +1,8 @@
-import { validateCreateUser, validateDeleteUser, validateGetUsers, validateGetUserById, validateUpdateUser, validateDeleteUser } from "./user.middleware";
-import { validateCreateContent,validateGetContents,validateGetContentById,validateUpdateContent,validateDeleteContent } from "./content.middleware";
-import { validateCreateDomain, validateDeleteDomain, validateGetDomainById, validateGetDomains, validateUpdateDomain } from "./domain.middleware";
-import { validateCreatePage, validateDeletePage, validateGetPageById, validateGetPages, validateUpdatePage } from "./page.middleware";
-import { validateCreateSection, validateDeleteSection, validateGetSectionById, validateGetSections, validateUpdateSection } from "./section.middleware";
+import { validateCreateUser, validateGetUsers, validateGetUserById, validateUpdateUser, validateDeleteUser, isUserAuthenticated } from "./user.middleware.js";
+import { validateCreateContent,validateGetContents,validateGetContentById,validateUpdateContent,validateDeleteContent } from "./content.middleware.js";
+import { validateCreateDomain, validateDeleteDomain, validateGetDomainById, validateGetDomains, validateUpdateDomain } from "./domain.middleware.js";
+import { validateCreatePage, validateDeletePage, validateGetPageById, validateGetPages, validateUpdatePage } from "./page.middleware.js";
+import { validateCreateSection, validateDeleteSection, validateGetSectionById, validateGetSections, validateUpdateSection } from "./section.middleware.js";
 
 
 
@@ -13,7 +13,8 @@ const UserMiddleware = {
     validateGetUsers,
     validateGetUserById,
     validateUpdateUser,
-    validateDeleteUser
+    validateDeleteUser,
+    isUserAuthenticated
 };
 
 const DomainMiddleware = {

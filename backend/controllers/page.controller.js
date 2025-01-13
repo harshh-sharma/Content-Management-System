@@ -1,4 +1,4 @@
-import Page from '../models/Page';
+import Page from '../models/page.model.js';
 
 // Create a new page
 export const createPage = (req, res) => {

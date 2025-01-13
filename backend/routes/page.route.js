@@ -1,6 +1,6 @@
 import express from "express";
-import {PageController} from "../controllers";
-import { PageMiddleware } from "../middlewares";
+import {PageController} from "../controllers/index.js";
+import { PageMiddleware } from "../middlewares/index.js";
 
 const router = express.Router();
 

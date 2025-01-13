@@ -1,3 +1,5 @@
+import jwt from "jsonwebtoken";
+
 const validateCreateUser = (req, res, next) => {
     const { name, email, password } = req.body;
 
@@ -84,11 +86,34 @@ const validateGetUsers = (req, res, next) => {
     next();
 };
 
+const isUserAuthenticated = async (req, res , next) => {
+    const token = req.headers['x-access-token'];
+
+    if(!token){
+        return res.status(400).json({
+            success:false,
+            message:'User is not authenticated'
+        })
+    }
+
+    const decodedToken = await jwt.verify(token,process.env.JWT_SECRET_KEY);
+  console.log("decodedToken",decodedToken);
+  
+    if(!decodedToken){
+        return res.status(400).json({
+            success:false,
+            message:'Invalid Token'
+        })
+    }
+   next();
+}
+
 export {
     validateCreateUser,
     validateGetUsers,
     validateGetUserById,
     validateUpdateUser,
-    validateDeleteUser
+    validateDeleteUser,
+    isUserAuthenticated
 }
 

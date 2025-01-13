@@ -1,4 +1,5 @@
-import { Schema } from "mongoose";
+import mongoose from "mongoose";
+const Schema = mongoose.Schema;
 
 const SectionSchema = new Schema({
     page_id: {
@@ -24,4 +25,6 @@ const SectionSchema = new Schema({
     }
 });
 
-module.exports = mongoose.model('Section', SectionSchema);
+const Section = mongoose.model('Section', SectionSchema);
+
+export default Section;

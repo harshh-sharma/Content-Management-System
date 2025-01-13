@@ -1,4 +1,4 @@
-import Content from '../models/Content';
+import Content from '../models/content.model.js';
 
 // Create content
 export const createContent = (req, res) => {

@@ -1,6 +1,6 @@
 import express from "express";
-import {ContentController} from "../controllers";
-import { ContentMiddleware } from "../middlewares";
+import {ContentController} from "../controllers/index.js";
+import { ContentMiddleware } from "../middlewares/index.js";
 
 const router = express.Router();
 

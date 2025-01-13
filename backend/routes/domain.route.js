@@ -1,8 +1,7 @@
-import { DomainController } from "../controllers";
+import express from "express";
 
-
-import {DomainMiddleware} from "../middlewares"
-
+import { DomainController } from "../controllers/index.js";
+import {DomainMiddleware} from "../middlewares/index.js"
 
 const router = express.Router();
 
@@ -12,4 +11,4 @@ router.get("/domains/:id", DomainMiddleware.validateGetDomainById, DomainControl
 router.put("/domains/:id", DomainMiddleware.validateUpdateDomain, DomainController.updateDomain); // Update domain by ID
 router.delete("/domains/:id", DomainMiddleware.validateDeleteDomain, DomainController.deleteDomain); // Delete domain by ID
 
-module.exports = router;
+export default router;
