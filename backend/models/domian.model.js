@@ -12,6 +12,11 @@ const DomainSchema = new Schema({
         required: true,
         unique: true
     },
+    name: {
+        type: String,
+        required: true,
+        unique: true
+    },
     created_at: {
         type: Date,
         default: Date.now

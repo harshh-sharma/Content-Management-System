@@ -1,4 +1,4 @@
-import { validateCreateUser, validateGetUsers, validateGetUserById, validateUpdateUser, validateDeleteUser, isUserAuthenticated } from "./user.middleware.js";
+import { validateCreateUser, validateGetUsers, validateGetUserById, validateUpdateUser, validateDeleteUser, isUserAuthenticated, isUserAuthorizied } from "./user.middleware.js";
 import { validateCreateContent,validateGetContents,validateGetContentById,validateUpdateContent,validateDeleteContent } from "./content.middleware.js";
 import { validateCreateDomain, validateDeleteDomain, validateGetDomainById, validateGetDomains, validateUpdateDomain } from "./domain.middleware.js";
 import { validateCreatePage, validateDeletePage, validateGetPageById, validateGetPages, validateUpdatePage } from "./page.middleware.js";
@@ -14,7 +14,8 @@ const UserMiddleware = {
     validateGetUserById,
     validateUpdateUser,
     validateDeleteUser,
-    isUserAuthenticated
+    isUserAuthenticated,
+    isUserAuthorizied
 };
 
 const DomainMiddleware = {

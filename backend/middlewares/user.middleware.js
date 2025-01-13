@@ -1,4 +1,6 @@
 import jwt from "jsonwebtoken";
+import {StatusCodes} from "http-status-codes";
+import User from "../models/user.model.js";
 
 const validateCreateUser = (req, res, next) => {
     const { name, email, password } = req.body;
@@ -86,26 +88,47 @@ const validateGetUsers = (req, res, next) => {
     next();
 };
 
-const isUserAuthenticated = async (req, res , next) => {
+const isUserAuthenticated = async (req, res, next) => {
     const token = req.headers['x-access-token'];
 
-    if(!token){
+    if (!token) {
         return res.status(400).json({
+            success: false,
+            message: 'User is not authenticated'
+        });
+    }
+
+    try {
+        const decodedToken = await jwt.verify(token, process.env.JWT_SECRET_KEY);
+        req.user = decodedToken;
+        next();
+    } catch (err) {
+        if (err.name === 'TokenExpiredError') {
+            return res.status(401).json({
+                success: false,
+                message: 'Token has expired. Please log in again.'
+            });
+        }
+
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid Token'
+        });
+    }
+};
+
+const isUserAuthorizied = async (req, res ,next) => {
+    const  user  = req.user;
+    const findUser = await User.findById(user.id);
+ 
+    if(findUser.role !== 'ADMIN'){
+        return res.status(StatusCodes.BAD_REQUEST).json({
             success:false,
-            message:'User is not authenticated'
+            message:"user is not authorized"
         })
     }
 
-    const decodedToken = await jwt.verify(token,process.env.JWT_SECRET_KEY);
-  console.log("decodedToken",decodedToken);
-  
-    if(!decodedToken){
-        return res.status(400).json({
-            success:false,
-            message:'Invalid Token'
-        })
-    }
-   next();
+    next();
 }
 
 export {
@@ -114,6 +137,7 @@ export {
     validateGetUserById,
     validateUpdateUser,
     validateDeleteUser,
-    isUserAuthenticated
+    isUserAuthenticated,
+    isUserAuthorizied
 }
 
