@@ -15,4 +15,6 @@ router.delete('/:id',PageMiddleware.validateDeletePage,PageController.deletePage
 
 router.get('/:id/pages',PageController.getPagesByDomain);
 
+router.get('/:id/sections',PageController.getSectionsByPages);
+
 export default router;

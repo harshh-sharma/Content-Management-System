@@ -35,26 +35,3 @@ export const deleteSection = (req, res) => {
         .then(() => res.json({ message: 'Section deleted successfully' }))
         .catch(err => res.status(400).json(err));
 };
-
-export const getSectionsByPages = async (req, res) => {
-    try {
-      const { id } = req.params;
-      
-      const sections = await Page.find({ page_id : id });
-  
-      if (!sections.length) {
-        return res.status(404).json({ 
-            success:true,
-            message: 'No section found for this page' ,
-            data:[]
-        });
-      }
-      res.status(200).json({
-        success:true,
-        message:'Successfully get all sections',
-        data:sections
-    });
-    } catch (err) {
-      res.status(500).json({ message: 'Failed to fetch pages', error: err.message });
-    }
-  };
