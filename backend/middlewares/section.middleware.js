@@ -1,14 +1,15 @@
 const validateCreateSection = (req, res, next) => {
-    const { title, content } = req.body;
+    const { name, order } = req.body;
 
     // Check if title is provided and is a valid string
-    if (!title || typeof title !== 'string' || title.trim().length === 0) {
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
         return res.status(400).json({ error: "Section title is required" });
     }
 
     // Check if content is provided and is a valid string
-    if (!content || typeof content !== 'string' || content.trim().length === 0) {
-        return res.status(400).json({ error: "Section content is required" });
+
+    if (!order || typeof Number(order) !== 'number') {
+        return res.status(400).json({ error: "Section order is required" });
     }
 
     next();

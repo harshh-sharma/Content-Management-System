@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getPages } from '../redux/slices/pageSlice';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 const Page = () => {
   const token = useSelector(store => store?.auth['x-access-token']);
@@ -37,7 +37,7 @@ const Page = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {pages?.length > 0 ? (
           pages.map((page) => (
-            <div
+            <Link to={`/${page?._id}/sections`}><div
               key={page._id}
               className="bg-white p-6 border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition duration-300 ease-in-out transform hover:scale-105"
             >
@@ -55,6 +55,7 @@ const Page = () => {
                 </a>
               </div>
             </div>
+            </Link>
           ))
         ) : (
           <div className="text-xl text-center text-gray-500">No pages found.</div>

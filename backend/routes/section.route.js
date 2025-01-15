@@ -10,4 +10,6 @@ router.get('/:id',SectionMiddleware.validateGetSectionById,SectionController.get
 router.put('/:id',SectionMiddleware.validateUpdateSection ,SectionController.updateSection);
 router.delete('/:id',SectionMiddleware.validateDeleteSection,SectionController.deleteSection);
 
+router.get('/:id/sections',SectionController.getSectionsByPages);
+
 export default router;
