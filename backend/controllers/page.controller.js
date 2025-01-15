@@ -35,3 +35,24 @@ export const deletePage = (req, res) => {
         .then(() => res.json({ message: 'Page deleted successfully' }))
         .catch(err => res.status(400).json(err));
 };
+
+export const getPagesByDomain = async (req, res) => {
+    try {
+      const { domainId } = req.params;
+      const pages = await Page.find({ domain: domainId }).populate('domain');
+      if (!pages.length) {
+        return res.status(404).json({ 
+            success:true,
+            message: 'No pages found for this domain' ,
+            data:[]
+        });
+      }
+      res.status(200).json({
+        success:true,
+        message:'Successfully get all pages',
+        data:pages
+    });
+    } catch (err) {
+      res.status(500).json({ message: 'Failed to fetch pages', error: err.message });
+    }
+  };
