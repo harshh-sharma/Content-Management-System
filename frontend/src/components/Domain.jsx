@@ -19,7 +19,7 @@ const Domain = () => {
     <div className="flex flex-wrap gap-8 p-10 justify-center bg-gradient-to-r from-gray-100 to-gray-300">
       {domains?.length > 0 ? (
         domains.map((website, index) => (
-          <Link to={`/${website?._id}/page`}>
+          <Link to={`/${website?._id}/pages`}>
           <div
             key={index}
             className="w-full sm:w-72 md:w-80 lg:w-96 p-6 bg-white rounded-xl shadow-lg hover:scale-105 transform transition-all duration-300 hover:shadow-2xl hover:bg-gray-200"

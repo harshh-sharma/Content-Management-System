@@ -1,7 +1,7 @@
 import { createDomain, deleteDomain, getDomainById, getDomains, updateDomain } from "./domain.controller.js";
 import { createUser,loginUser, getUserById, getUsers, updateUser, deleteUser } from "./user.controller.js";
 import { createSection, deleteSection, getSectionById, getSections, updateSection } from "./section.controller.js"
-import { createPage, deletePage, getPageById, getPages, updatePage } from "./page.controller.js";
+import { createPage, deletePage, getPageById, getPages, updatePage,getPagesByDomain } from "./page.controller.js";
 import { createContent, deleteContent, getContentById, getContents, updateContent } from "./content.controller.js";
 
 const UserController = {
@@ -26,7 +26,8 @@ const PageController = {
     getPageById,
     updatePage,
     getPages,
-    deletePage
+    deletePage,
+    getPagesByDomain
 }
 
 const SectionController = {

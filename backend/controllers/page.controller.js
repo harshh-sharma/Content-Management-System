@@ -1,11 +1,25 @@
+import { StatusCodes } from 'http-status-codes';
 import Page from '../models/page.model.js';
 
 // Create a new page
 export const createPage = (req, res) => {
-    const page = new Page(req.body);
-    page.save()
-        .then(newPage => res.json(newPage))
-        .catch(err => res.status(400).json(err));
+    const {domain_id,title,slug} = req.body;
+try {
+        const page = new Page({domain_id,title,slug});
+        page.save();
+        
+        return res.status(StatusCodes.OK).json({
+            success:true,
+            message:'successfully page created',
+            data:page
+        })
+} catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success:false,
+        message:error.message,
+        data:[]
+    })
+}
 };
 
 // Get all pages
@@ -38,8 +52,10 @@ export const deletePage = (req, res) => {
 
 export const getPagesByDomain = async (req, res) => {
     try {
-      const { domainId } = req.params;
-      const pages = await Page.find({ domain: domainId }).populate('domain');
+      const { id } = req.params;
+      
+      const pages = await Page.find({ domain_id : id });
+  
       if (!pages.length) {
         return res.status(404).json({ 
             success:true,

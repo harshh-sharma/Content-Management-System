@@ -7,9 +7,9 @@ const validateCreatePage = (req, res, next) => {
     }
 
     // Check if content is provided and is a valid string
-    if (!content || typeof content !== 'string' || content.trim().length === 0) {
-        return res.status(400).json({ error: "Page content is required" });
-    }
+    // if (!content || typeof content !== 'string' || content.trim().length === 0) {
+    //     return res.status(400).json({ error: "Page content is required" });
+    // }
 
     next();
 };

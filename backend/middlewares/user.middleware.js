@@ -89,8 +89,11 @@ const validateGetUsers = (req, res, next) => {
 };
 
 const isUserAuthenticated = async (req, res, next) => {
+    console.log('res--ss',req.headers);
+    
     const token = req.headers['x-access-token'];
-
+    console.log("token--=",token);
+    
     if (!token) {
         return res.status(400).json({
             success: false,
