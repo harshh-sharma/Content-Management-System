@@ -6,27 +6,23 @@ export const register = createAsyncThunk(
   'auth/register',
   async (data, { rejectWithValue }) => {
     try {
-      // Show loading toast
-      const loadingToastId = toast.loading('Registering...');
-
-      // Send POST request to register user
-      const response = await axiosInstance.post('/user/register', data);
-
-      // Update toast to success
-      toast.update(loadingToastId, {
-        render: 'Registration successful!',
-        type: 'success',
-        isLoading: false,
-        autoClose: 5000
-      });
-
-      return response.data; // Assuming the API returns data in response.data
+      const response = await toast.promise(
+        axiosInstance.post("/user/register", data),
+        {
+          pending: "Registering...",
+          success: "User successfully registered",
+          error:  data =>  {
+              // `data` contains the error object
+              console.log("data",data);
+              
+              return data?.response?.data?.message || "Registration failed";
+            },
+        }
+      );
+      return response.data;
     } catch (error) {
-      // Show error toast
-      toast.error('Registration failed. Please try again.');
-
-      // Reject the error with a value
-      return rejectWithValue(error.response.data || 'Something went wrong');
+      // Use rejectWithValue to pass error payload to rejected action
+      return rejectWithValue(error?.response?.data?.success);
     }
   }
 );
@@ -39,6 +35,14 @@ const authSlice = createSlice({
         'x-access-token':null
     },
     // reducers:{}
+    extraReducers:(builder) => {
+      builder.addCase(register?.fulfilled,(state,action) => {
+        console.log("action",action);
+        
+          state.isLoggedIn = true
+          state["x-access-token"] = action.payload.token
+      })
+    }
 })
 
 export default authSlice.reducer;
