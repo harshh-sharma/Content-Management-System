@@ -14,7 +14,8 @@ const ContentSchema = new Schema({
     },
     content_data: {
         text: { type: String },
-        image_url: { type: String }
+        image_url: { type: String },
+        public_id: { type: String } // Store the public_id from Cloudinary here
     },
     created_at: {
         type: Date,

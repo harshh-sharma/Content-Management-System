@@ -1,23 +1,26 @@
-import multer from 'multer';
-import { v2 as cloudinary } from 'cloudinary';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import path from "path";
+import multer  from "multer";
 
-// Configure Cloudinary
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
-});
-
-// Configure Multer Storage with Cloudinary
-const storage = new CloudinaryStorage({
-    cloudinary: cloudinary,
-    params: {
-        folder: 'images', // Change the folder name as needed
-        allowed_formats: ['jpg', 'jpeg', 'png', 'gif'],
-    },
-});
-
-const upload = multer({ storage });
+const upload = multer({
+    dest: "uploads/",
+    limits : {fileSize:100*1024*1024},
+    storage: multer.diskStorage({
+        destination: "uploads/",
+        filename: (_req,file,cb) => {
+            cb(null,file.originalname)
+        }
+        }),
+        fileFilter: (_req,file,cb) => {
+            let ext = path.extname(file.originalname);
+            if(ext !== ".jpg" && ext !== ".jpeg" && ext !== ".png"  &&  ext !== ".mp4" && ext !== ".webp"){
+                cb(res.status(400).json({
+                    success:false,
+                    message:"Unsupported format of file"
+                }))
+                return ;
+            }
+            cb(null,true)
+        }
+})
 
 export default upload;

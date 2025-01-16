@@ -2,7 +2,7 @@ import { createDomain, deleteDomain, getDomainById, getDomains, updateDomain } f
 import { createUser,loginUser, getUserById, getUsers, updateUser, deleteUser } from "./user.controller.js";
 import { createSection, deleteSection, getSectionById, getSections, updateSection } from "./section.controller.js"
 import { createPage, deletePage, getPageById, getPages, updatePage,getPagesByDomain , getSectionsByPages } from "./page.controller.js";
-import { createContent, deleteContent, getContentById, getContents, updateContent } from "./content.controller.js";
+import { createContent, deleteContent, getContentById, getContents, updateContent,getContentsRelatedToSection } from "./content.controller.js";
 
 const UserController = {
     createUser,
@@ -44,7 +44,9 @@ const ContentController = {
     getContents,
     getContentById,
     deleteContent,
-    updateContent
+    updateContent,
+    getContentsRelatedToSection
+    
 }
 
 

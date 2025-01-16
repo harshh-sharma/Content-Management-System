@@ -47,7 +47,7 @@ const ContentMiddleware = {
     validateGetContents,
     validateGetContentById,
     validateUpdateContent,
-    validateDeleteContent
+    validateDeleteContent,
 }
 
 

@@ -1,13 +1,13 @@
 const validateCreateContent = (req, res, next) => {
-    const { title, body } = req.body;
+    // const { title, body } = req.body;
 
-    if (!title || typeof title !== 'string' || title.trim().length === 0) {
-        return res.status(400).json({ error: "Content title is required" });
-    }
+    // if (!title || typeof title !== 'string' || title.trim().length === 0) {
+    //     return res.status(400).json({ error: "Content title is required" });
+    // }
 
-    if (!body || typeof body !== 'string' || body.trim().length === 0) {
-        return res.status(400).json({ error: "Content body is required" });
-    }
+    // if (!body || typeof body !== 'string' || body.trim().length === 0) {
+    //     return res.status(400).json({ error: "Content body is required" });
+    // }
 
     next();
 };

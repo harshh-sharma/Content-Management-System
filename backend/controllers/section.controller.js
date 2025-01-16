@@ -35,3 +35,4 @@ export const deleteSection = (req, res) => {
         .then(() => res.json({ message: 'Section deleted successfully' }))
         .catch(err => res.status(400).json(err));
 };
+

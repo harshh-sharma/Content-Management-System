@@ -7,6 +7,7 @@ import ProtectedRoute from './components/ProtectedRoute'; // Import the Protecte
 import Login from './components/Login';
 import Register from './components/Register';
 import Section from './components/Section';
+import Content from './components/Content';
 
 function App() {
   return (
@@ -17,6 +18,8 @@ function App() {
       <Route path='/domains' element={<ProtectedRoute><Domain /></ProtectedRoute>} />
       <Route path='/:id/pages' element={<ProtectedRoute><Page /></ProtectedRoute>} />
       <Route path='/:id/sections' element={<ProtectedRoute><Section /></ProtectedRoute>} />
+      <Route path='/:id/contents' element={<ProtectedRoute><Content /></ProtectedRoute>} />
+
     </Routes>
   );
 }

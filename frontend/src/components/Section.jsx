@@ -36,7 +36,7 @@ const Section = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {sections?.length > 0 ? (
           sections.map((section) => (
-            <Link to={`/${section?._id}/sections`} key={section._id}>
+            <Link to={`/${section?._id}/contents`} key={section._id}>
               <div
                 className="relative bg-gradient-to-r from-blue-500 to-purple-600 text-white flex flex-col justify-center items-center p-6 border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition duration-300 ease-in-out transform hover:scale-105"
               >
