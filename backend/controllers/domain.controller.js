@@ -38,10 +38,30 @@ export  const getDomainById = async (req, res) => {
 };
 
 // Update a domain by ID
-export const updateDomain = (req, res) => {
-    Domain.findByIdAndUpdate(req.params.id, req.body, { new: true })
-        .then(updatedDomain => res.json(updatedDomain))
-        .catch(err => res.status(400).json(err));
+export const updateDomain = async (req, res) => {
+   try {
+    const updatedDomain = await Domain.findByIdAndUpdate(req.params.id, req.body, { new: true });
+
+    if(!updateDomain){
+        return res.status(StatusCodes.BAD_REQUEST).json({
+            success:false,
+            message:'something went wrong'
+        })
+    }
+
+    const domains = await Domain.find({});
+
+    return res.status(StatusCodes.OK).json({
+        success:true,
+        message:'successfully get domains',
+        data:domains
+    })
+   } catch (error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success:false,
+        message:error.message
+    })
+   }
 };
 
 // Delete a domain by ID
