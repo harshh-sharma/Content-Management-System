@@ -3,25 +3,32 @@ import Page from '../models/page.model.js';
 import Section from '../models/section.model.js';
 
 // Create a new page
-export const createPage = (req, res) => {
-    const {domain_id,title,slug} = req.body;
-try {
-        const page = new Page({domain_id,title,slug});
-        page.save();
-        
-        return res.status(StatusCodes.OK).json({
-            success:true,
-            message:'successfully page created',
-            data:page
-        })
-} catch (error) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        success:false,
-        message:error.message,
-        data:[]
-    })
-}
+export const createPage = async (req, res) => {
+  const { domain_id, title, slug } = req.body;
+
+  try {
+      // Create and save the new page
+      const newPage = new Page({ domain_id, title, slug });
+      await newPage.save();
+
+      // Fetch all pages including the newly added one
+      const pages = await Page.find({});
+
+      // Send the response with all pages
+      return res.status(StatusCodes.OK).json({
+          success: true,
+          message: 'Successfully created the page',
+          data: pages
+      });
+  } catch (error) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: error.message,
+          data: []
+      });
+  }
 };
+
 
 // Get all pages
 export const getPages = (req, res) => {

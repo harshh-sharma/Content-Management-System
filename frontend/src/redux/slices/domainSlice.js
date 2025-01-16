@@ -18,6 +18,8 @@ export const getDomains = createAsyncThunk("/domain/",async () => {
 
 export const addDomain = createAsyncThunk("/domain/",async (data) => {
   try {
+    console.log("data",data);
+    
     const response = axiosInstance.post("/domain",data,{
       headers: {
         'x-access-token': data?.token, // Sending the token in the headers

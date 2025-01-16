@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getDomains, addDomain, deleteDomain, updateDomain } from "../redux/slices/domainSlice";
 import { FaEdit, FaTrashAlt } from 'react-icons/fa'; // Importing icons
+import { Link } from "react-router-dom";
 
 const Domain = () => {
   const token = useSelector((store) => store.auth['x-access-token']);
@@ -33,7 +34,7 @@ const Domain = () => {
     e.preventDefault();
     if (newDomain.name && newDomain.url) {
       newDomain.token = token;
-      await dispatch(addDomain({...newDomain,token}));
+      await dispatch(addDomain({...newDomain,token,domain_id:id}));
       await dispatch(getDomains());
       setShowModal(false);
       setNewDomain({ name: "", url: "" });
@@ -75,7 +76,7 @@ const Domain = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
         {domains?.length > 0 ? (
           domains.map((website, index) => (
-            <div key={index} className="relative w-full sm:w-72 md:w-80 lg:w-96 p-6 bg-white rounded-xl shadow-lg hover:scale-105 transform transition-all duration-300 hover:shadow-2xl hover:bg-gray-200">
+            <Link to={`/${website?._id}/pages`}><div key={index} className="relative w-full sm:w-72 md:w-80 lg:w-96 p-6 bg-white rounded-xl shadow-lg hover:scale-105 transform transition-all duration-300 hover:shadow-2xl hover:bg-gray-200">
               
               {/* Edit and Delete Buttons at the top-right */}
               <div className="absolute top-2 right-2 flex gap-4">
@@ -119,6 +120,7 @@ const Domain = () => {
                 Visit Website
               </button>
             </div>
+            </Link>
           ))
         ) : (
           <div>No domains available</div>
