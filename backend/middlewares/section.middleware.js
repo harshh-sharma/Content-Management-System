@@ -1,5 +1,7 @@
 const validateCreateSection = (req, res, next) => {
     const { name, order } = req.body;
+    console.log("name",name);
+    
 
     // Check if title is provided and is a valid string
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
