@@ -1,5 +1,5 @@
 import { config } from 'dotenv';
-
+import cors from "cors";
 import express from 'express';
 import app from './app.js';
 import connectToDb from './config/db.config.js';
@@ -10,6 +10,8 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
+
+app.use(cors());
 
 app.get('/ping',(req,res) => {
    return res.send({message:"server is alive"});

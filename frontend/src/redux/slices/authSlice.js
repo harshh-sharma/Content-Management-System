@@ -12,7 +12,6 @@ export const register = createAsyncThunk(
           pending: "Registering...",
           success: "User successfully registered",
           error: (data) => {
-            // `data` contains the error object
             console.log("data", data);
             return data?.response?.data?.message || "Registration failed";
           },
@@ -20,7 +19,6 @@ export const register = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
-      // Use rejectWithValue to pass error payload to rejected action
       return rejectWithValue(error?.response?.data?.success);
     }
   }
@@ -33,10 +31,9 @@ export const login = createAsyncThunk(
       const response = await toast.promise(
         axiosInstance.post("/user/login", data),
         {
-          pending: "login...",
-          success: "User successfully loggedIn",
+          pending: "Logging in...",
+          success: "User successfully logged in",
           error: (data) => {
-            // `data` contains the error object
             console.log("data", data);
             return data?.response?.data?.success || "Login failed";
           },
@@ -44,60 +41,59 @@ export const login = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
-      // Use rejectWithValue to pass error payload to rejected action
       return rejectWithValue(error?.response?.data?.success);
     }
   }
 );
 
-export const logout = createAsyncThunk('/auth/logout',() => {
-   state.isLoggedIn = false;
-   state.token = null;
-   localStorage.removeItem('x-access-token');
-   localStorage.removeItem('isLoggedIn');
-});
+// No need to use createAsyncThunk for logout since it's a synchronous operation
+const logout = () => (dispatch) => {
+  localStorage.removeItem('x-access-token');
+  localStorage.removeItem('isLoggedIn');
+  dispatch(authSlice.actions.logout());
+};
 
 const authSlice = createSlice({
   name: "auth",
-  initialState : {
-    isLoggedIn: localStorage.getItem("isLoggedIn") === "true",  // Check localStorage
-    'x-access-token': localStorage.getItem("x-access-token"),  // Get token from localStorage
+  initialState: {
+    isLoggedIn: localStorage.getItem("isLoggedIn") === "true",
+    'x-access-token': localStorage.getItem("x-access-token"),
+  },
+  reducers: {
+    logout: (state) => {
+      state.isLoggedIn = false;
+      state["x-access-token"] = null;
+    }
   },
   extraReducers: (builder) => {
     builder.addCase(register.fulfilled, (state, action) => {
-      console.log("action", action);
-
-      // Save the token and logged-in status to localStorage
       state.isLoggedIn = true;
       state["x-access-token"] = action.payload.token;
-
-      // Store both the token and isLoggedIn in localStorage
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("x-access-token", action.payload.token);
     });
 
-    builder.addCase(register.rejected, (state, action) => {
-      // Handle the rejected state if needed (for example, show an error message)
+    builder.addCase(register.rejected, (state) => {
       state.isLoggedIn = false;
       state["x-access-token"] = null;
     });
 
-    builder.addCase(login.fulfilled,(state,action) => {
-      console.log("yes fukllfilled");
-      
+    builder.addCase(login.fulfilled, (state, action) => {
       state.isLoggedIn = true;
       state["x-access-token"] = action.payload.token;
-
-      // Store both the token and isLoggedIn in localStorage
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("x-access-token", action.payload.token);
-    })
+    });
 
-    builder.addCase(login.rejected, (state,action) => {
+    builder.addCase(login.rejected, (state) => {
       state.isLoggedIn = false;
       state["x-access-token"] = null;
-    })
+    });
   }
 });
 
+export const { logout: logoutAction } = authSlice.actions;
+
 export default authSlice.reducer;
+
+export { logout }; // Export the logout function for use in your components

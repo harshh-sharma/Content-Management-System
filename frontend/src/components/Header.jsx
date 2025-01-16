@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FiMenu } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { logout } from '../redux/slices/authSlice';
+import { logout, logoutAction } from '../redux/slices/authSlice';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -12,7 +12,7 @@ const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = async () => {
-    await dispatch(logout()); // Dispatch logout action
+    dispatch(logoutAction()); // Dispatch logout action
     navigate('/');
   };
 
