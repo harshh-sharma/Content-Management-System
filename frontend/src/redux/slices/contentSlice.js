@@ -27,6 +27,10 @@ export const getContents = createAsyncThunk('/id/contents', async (data, { rejec
       return rejectWithValue(error?.response?.data || "Something went wrong");
     }
   });
+
+  export const addContent = () => {}
+  export const deleteContent = () => {}
+  export const updateContent = () => {}
   
 
 const contentSlice = createSlice({

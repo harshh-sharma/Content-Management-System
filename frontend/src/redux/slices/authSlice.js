@@ -35,7 +35,7 @@ export const login = createAsyncThunk(
           success: "User successfully logged in",
           error: (data) => {
             console.log("data", data);
-            return data?.response?.data?.success || "Login failed";
+            return data?.response?.data?.message || "Login failed";
           },
         }
       );

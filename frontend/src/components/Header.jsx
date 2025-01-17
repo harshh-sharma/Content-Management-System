@@ -12,7 +12,7 @@ const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = async () => {
-    dispatch(logoutAction()); // Dispatch logout action
+    dispatch(logout()); // Dispatch logout action
     navigate('/');
   };
 

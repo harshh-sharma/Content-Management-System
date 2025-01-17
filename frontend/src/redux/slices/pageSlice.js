@@ -120,6 +120,9 @@ const pageSlice = createSlice({
       .addCase(getPages?.fulfilled, (state, action) => {
         state.pages = action?.payload?.data;
       })
+      .addCase(getPages.rejected,(state,action) => {
+        state.pages = [];
+      })
       .addCase(addPage.fulfilled, (state, action) => {
         console.log("action", action?.payload?.data);
         state.pages = action?.payload?.data;

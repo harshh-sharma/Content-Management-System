@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { getSections, addSection, updateSection, deleteSection } from '../redux/slices/sectionSlice';
 import { FaSortNumericDown, FaEdit, FaTrash } from 'react-icons/fa';
 
@@ -82,7 +82,7 @@ const Section = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {sections?.length > 0 ? (
           sections.map((section) => (
-            <div
+            <Link to={`/${section?._id}/contents`}><div
               key={section._id}
               className="relative bg-gradient-to-r from-blue-500 to-purple-600 text-white flex flex-col justify-between p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 ease-in-out transform hover:scale-105"
             >
@@ -108,6 +108,7 @@ const Section = () => {
                 </div>
               </div>
             </div>
+            </Link>
           ))
         ) : (
           <div className="text-2xl text-center text-gray-500">No sections found.</div>

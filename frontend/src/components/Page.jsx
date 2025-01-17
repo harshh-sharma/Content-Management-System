@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getPages, addPage, updatePage, deletePage } from '../redux/slices/pageSlice';
 import { FaEdit, FaTrash } from 'react-icons/fa'; // Import FontAwesome icons
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import logoutUser from '../utils/logoutFunction';
 
 const Page = () => {
   const {id} = useParams();
+  const navigate = useNavigate();
 
   const token = useSelector((store) => store?.auth['x-access-token']);
   const dispatch = useDispatch();
@@ -30,6 +32,11 @@ const Page = () => {
       try {
         setLoading(true);
         const response = await dispatch(getPages({id, token }));
+        console.log('response',response);
+        if(response?.payload?.message == 'Token has expired. Please log in again.'){
+           logoutUser(navigate,dispatch);
+        }
+        
         setLoading(false);
       } catch (err) {
         setLoading(false);
@@ -97,7 +104,7 @@ const Page = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {pages?.length > 0 ? (
           pages.map((page) => (
-            <Link to={`/${id}/sections`}><div
+            <Link to={`/${page._id}/sections`}><div
               key={page._id}
               className="bg-white p-6 border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition duration-300 ease-in-out transform hover:scale-105 relative"
             >

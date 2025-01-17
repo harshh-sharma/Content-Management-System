@@ -86,8 +86,8 @@ export const getPagesByDomain = async (req, res) => {
       const { id } = req.params;
       
       const sections = await Section.find({ page_id : id });
-  
-      if (!sections.length) {
+      
+      if (!sections) {
         return res.status(404).json({ 
             success:true,
             message: 'No section found for this page' ,

@@ -6,7 +6,8 @@ export const getSections = createAsyncThunk(
   "/id/sections",
   async (data, { rejectWithValue }) => {
     try {
-
+      console.log("data==",data);
+      
       const response = await toast.promise(
         axiosInstance.get(`/page/${data?.id}/sections`, {
           headers: {
