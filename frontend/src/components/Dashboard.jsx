@@ -7,6 +7,7 @@ const Dashboard = () => {
   const dispatch = useDispatch();
   const token = useSelector((store) => store?.auth['x-access-token']);
   const currentUserId = useSelector((store) => store?.auth?.user?._id); // Assuming `user.id` is available in the auth slice
+ 
   const currentUserRole = useSelector((store) => store?.auth?.user?.role); // Assuming `user.role` is available
   console.log('token', token);
 

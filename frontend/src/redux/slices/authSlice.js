@@ -84,7 +84,7 @@ const authSlice = createSlice({
   initialState: {
     isLoggedIn: localStorage.getItem("isLoggedIn") === "true",
     'x-access-token': localStorage.getItem("x-access-token"),
-    user:localStorage.getItem("user"),
+    user:JSON.parse(localStorage.getItem('user')),
     role:localStorage.getItem("role")
   },
   reducers: {
@@ -104,7 +104,7 @@ const authSlice = createSlice({
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("x-access-token", action.payload.token);
       localStorage.setItem("role",action?.payload?.role);
-      localStorage.setItem("user",action?.payload?.user);
+      localStorage.setItem("user",JSON.stringify(action?.payload?.user));
     });
 
     builder.addCase(register.rejected, (state) => {
@@ -122,7 +122,7 @@ const authSlice = createSlice({
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("x-access-token", action.payload.token);
       localStorage.setItem("role",action?.payload?.role);
-      localStorage.setItem("user",action?.payload?.user);
+      localStorage.setItem("user",JSON.stringify(action?.payload?.user));
     });
 
     builder.addCase(login.rejected, (state) => {
