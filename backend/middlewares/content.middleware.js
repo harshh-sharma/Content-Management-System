@@ -1,5 +1,7 @@
-const validateCreateContent = (req, res, next) => {
+const validateCreateContent = async (req, res, next) => {
     // const { title, body } = req.body;
+    console.log("requestBody",req.body)
+    
 
     // if (!title || typeof title !== 'string' || title.trim().length === 0) {
     //     return res.status(400).json({ error: "Content title is required" });

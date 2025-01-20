@@ -5,7 +5,8 @@ import upload from "../config/cloudinary.config.js";
 
 const router = express.Router();
 
-router.post('/',UserMiddleware.isUserAuthenticated,UserMiddleware.isUserAuthorizied,ContentMiddleware.validateCreateContent,upload.single("image"),ContentController.createContent);
+router.post('/',UserMiddleware.isUserAuthenticated,UserMiddleware.isUserAuthorizied,ContentMiddleware.validateCreateContent,upload.single("file"),ContentController.createContent);
+
 router.get('/',UserMiddleware.isUserAuthenticated,UserMiddleware.isUserAuthorizied,ContentMiddleware.validateCreateContent ,ContentController.getContents);
 router.get('/:id',UserMiddleware.isUserAuthenticated,UserMiddleware.isUserAuthorizied,ContentMiddleware.validateGetContentById ,ContentController.getContentById);
 router.put('/:id',UserMiddleware.isUserAuthenticated,UserMiddleware.isUserAuthorizied,ContentMiddleware.validateUpdateContent ,ContentController.updateContent);

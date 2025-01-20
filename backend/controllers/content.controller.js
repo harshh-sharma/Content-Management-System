@@ -4,6 +4,8 @@ import cloudinary from "cloudinary";
 
 // Create content
 export const createContent = async (req, res) => {
+    console.log("calling manisdns");
+    
     console.log("--req body--", req.body); // Text fields
     console.log("--req file--", req.file); // Uploaded file details
 
