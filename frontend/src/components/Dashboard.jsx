@@ -1,45 +1,52 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios'; // Assuming Axios for API requests
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllUsers } from '../redux/slices/authSlice';
+import { getAllUsers, updateUser } from '../redux/slices/authSlice';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
   const token = useSelector((store) => store?.auth['x-access-token']);
+  const currentUserId = useSelector((store) => store?.auth?.user?._id); // Assuming `user.id` is available in the auth slice
+  const currentUserRole = useSelector((store) => store?.auth?.user?.role); // Assuming `user.role` is available
   console.log('token', token);
 
   const [users, setUsers] = useState([]); // State to store users
   const [loading, setLoading] = useState(true); // State for loading
   const [error, setError] = useState(null); // State for errors
 
+  const fetchUsers = async () => {
+    try {
+      const response = await dispatch(getAllUsers({ token })); // Replace with your API endpoint
+      if(response?.payload?.message == 'Token has expired. Please log in again.'){
+        logoutUser(navigate,dispatch);
+     }
+      setUsers(response?.payload);
+      setLoading(false);
+    } catch (err) {
+      setError('Failed to fetch users');
+      setLoading(false);
+    }
+  };
+
   // Fetch all registered users
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await dispatch(getAllUsers({ token })); // Replace with your API endpoint
-        setUsers(response?.payload);
-        setLoading(false);
-      } catch (err) {
-        setError('Failed to fetch users');
-        setLoading(false);
-      }
-    };
-
     fetchUsers();
   }, [dispatch, token]);
 
   // Handle role change
   const handleRoleChange = async (userId, newRole) => {
     try {
-      await axios.patch(`/api/users/${userId}/role`, { role: newRole }); // Replace with your API endpoint
-      setUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user.id === userId ? { ...user, role: newRole } : user
-        )
-      );
-      alert('Role updated successfully');
+      const response = await dispatch(updateUser({userId,role:newRole,token}));
+
+      if(response?.payload?.message == 'Token has expired. Please log in again.'){
+        logoutUser(navigate,dispatch);
+     }else{
+        await fetchUsers();
+     }
+      
+    //   alert('Role updated successfully');
     } catch (err) {
-      alert('Failed to update role');
+    //   alert('Failed to update role');
     }
   };
 
@@ -63,22 +70,26 @@ const Dashboard = () => {
             {users &&
               users.map((user, index) => (
                 <tr
-                  key={user.id}
+                  key={user._id}
                   className={`${
                     index % 2 === 0 ? 'bg-gray-50' : 'bg-gray-100'
                   } hover:bg-gray-200`}
                 >
-                  <td className="py-3 px-6 text-gray-700 font-medium">{user.name}</td>
-                  <td className="py-3 px-6 text-gray-700">{user.email}</td>
-                  <td className="py-3 px-6 text-gray-700">{user.role}</td>
+                  <td className={user?._id !== currentUserId ? `py-3 px-6 text-gray-700` : `py-3 px-6 text-green-500`}>{user.name}</td>
+                  <td className={user?._id !== currentUserId ? `py-3 px-6 text-gray-700` : `py-3 px-6 text-green-500`}>{user.email}</td>
+                  <td className={user?._id !== currentUserId ? `py-3 px-6 text-gray-700` : `py-3 px-6 text-green-500`}>{user.role}</td>
                   <td className="py-3 px-6">
                     <select
                       className="border border-gray-300 rounded-md py-2 px-3 w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
                       value={user.role}
-                      onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                      onChange={(e) => handleRoleChange(user._id, e.target.value)}
+                      disabled={
+                        user._id === currentUserId && currentUserRole === 'SUPERADMIN'
+                      } // Disable dropdown for current superAdmin
                     >
                       <option value="USER">User</option>
                       <option value="ADMIN">Admin</option>
+                      <option value="SUPERADMIN">SuperAdmin</option>
                     </select>
                   </td>
                 </tr>

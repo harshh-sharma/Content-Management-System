@@ -84,6 +84,7 @@ const authSlice = createSlice({
   initialState: {
     isLoggedIn: localStorage.getItem("isLoggedIn") === "true",
     'x-access-token': localStorage.getItem("x-access-token"),
+    user:localStorage.getItem("user"),
     role:localStorage.getItem("role")
   },
   reducers: {
@@ -91,38 +92,75 @@ const authSlice = createSlice({
       state.isLoggedIn = false;
       state["x-access-token"] = null;
       state.role = null;
+      state.user = null;
     }
   },
   extraReducers: (builder) => {
     builder.addCase(register.fulfilled, (state, action) => {
       state.isLoggedIn = true;
       state["x-access-token"] = action.payload.token;
+      state.role = action?.payload?.role;
+      state.user = action?.payload?.user;
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("x-access-token", action.payload.token);
       localStorage.setItem("role",action?.payload?.role);
+      localStorage.setItem("user",action?.payload?.user);
     });
 
     builder.addCase(register.rejected, (state) => {
       state.isLoggedIn = false;
       state["x-access-token"] = null;
       state.role = null;
+      state.user = null;
     });
 
     builder.addCase(login.fulfilled, (state, action) => {
       state.isLoggedIn = true;
       state["x-access-token"] = action.payload.token;
+      state.role = action?.payload?.role;
+      state.user = action?.payload?.user;
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("x-access-token", action.payload.token);
       localStorage.setItem("role",action?.payload?.role);
+      localStorage.setItem("user",action?.payload?.user);
     });
 
     builder.addCase(login.rejected, (state) => {
       state.isLoggedIn = false;
       state["x-access-token"] = null;
       state.role = null;
+      state.user = null;
     });
   }
 });
+
+export const updateUser = createAsyncThunk(
+  'user/:id',
+  async (data, { rejectWithValue }) => {
+    console.log("tojen",data);
+    
+    try {
+      const response = await toast.promise(
+        axiosInstance.put(`/user/role/${data?.userId}`, data,{
+          headers:{
+            'x-access-token':data?.token
+          }
+        }),
+        {
+          pending: "updating in...",
+          success: "User successfully updated",
+          error: (data) => {
+            console.log("data", data);
+            return data?.response?.data?.message || "failed to update";
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error?.response?.data?.success);
+    }
+  }
+);
 
 export const { logout: logoutAction } = authSlice.actions;
 

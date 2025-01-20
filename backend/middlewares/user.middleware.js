@@ -123,8 +123,10 @@ const isUserAuthenticated = async (req, res, next) => {
 const isUserAuthorizied = async (req, res ,next) => {
     const  user  = req.user;
     const findUser = await User.findById(user.id);
+    console.log("findUser",findUser);
+    
  
-    if(findUser.role !== 'ADMIN'){
+    if(findUser.role !== 'ADMIN' && findUser.role !== 'SUPERADMIN'){
         return res.status(StatusCodes.BAD_REQUEST).json({
             success:false,
             message:"user is not authorized"

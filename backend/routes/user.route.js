@@ -9,7 +9,9 @@ router.post('/register',UserMiddleware.validateCreateUser, UserController.create
 router.post('/login',UserController.loginUser);
 router.get('/',UserMiddleware.isUserAuthenticated,UserMiddleware.isUserAuthorizied,UserMiddleware.validateGetUsers,UserController.getUsers);
 router.get('/:id',UserMiddleware.isUserAuthorizied,UserMiddleware.isUserAuthenticated,UserMiddleware.validateGetUserById,UserController.getUserById);
-router.put('/:id',UserMiddleware.isUserAuthorizied,UserMiddleware.isUserAuthenticated,UserMiddleware.validateUpdateUser,UserController.updateUser);
+router.put('/:id',UserMiddleware.isUserAuthenticated,UserMiddleware.isUserAuthorizied,UserMiddleware.validateUpdateUser,UserController.updateUser);
 router.delete('/:id',UserMiddleware.isUserAuthorizied,UserMiddleware.isUserAuthenticated,UserMiddleware.validateDeleteUser,UserController.deleteUser);
+
+router.put('/role/:id',UserMiddleware.isUserAuthenticated,UserMiddleware.isUserAuthorizied,UserController.updateUserRole);
 
 export default router;
