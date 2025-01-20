@@ -2,6 +2,32 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosInstance from "../../axios/axiosInstance";
 import toast from "react-hot-toast";
 
+export const getAllUsers = createAsyncThunk(
+  'auth/users',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await toast.promise(
+        axiosInstance.get("/user/",{
+          headers:{
+            'x-access-token':data?.token
+          }
+        }),
+        {
+          pending: "loading...",
+          success: "User successfully get",
+          error: (data) => {
+            console.log("data", data);
+            return data?.response?.data?.message ||  "failed to get user";
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error?.response?.data?.success);
+    }
+  }
+);
+
 export const register = createAsyncThunk(
   'auth/register',
   async (data, { rejectWithValue }) => {

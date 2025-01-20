@@ -8,6 +8,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Section from './components/Section';
 import Content from './components/Content';
+import Dashboard from './components/Dashboard';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       <Route path='/:id/pages' element={<ProtectedRoute><Page /></ProtectedRoute>} />
       <Route path='/:id/sections' element={<ProtectedRoute><Section /></ProtectedRoute>} />
       <Route path='/:id/contents' element={<ProtectedRoute><Content /></ProtectedRoute>} />
+      <Route path='/dashboard' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
     </Routes>
   );

@@ -29,6 +29,7 @@ const Header = () => {
         <nav className={`w-full md:w-auto ${menuOpen ? 'block' : 'hidden'} md:block`}>
           <ul className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6">
             <li><Link to={'/'} className="hover:underline text-lg">Home</Link></li>
+            <li><Link to={'/dashboard'} className="hover:underline text-lg">Dashboard</Link></li>
             <li><Link to={'/domains'} className="hover:underline text-lg">Domains</Link></li>
             <li>
               {isLoggedIn ? (
