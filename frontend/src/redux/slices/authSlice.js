@@ -58,11 +58,13 @@ const authSlice = createSlice({
   initialState: {
     isLoggedIn: localStorage.getItem("isLoggedIn") === "true",
     'x-access-token': localStorage.getItem("x-access-token"),
+    role:localStorage.getItem("role")
   },
   reducers: {
     logout: (state) => {
       state.isLoggedIn = false;
       state["x-access-token"] = null;
+      state.role = null;
     }
   },
   extraReducers: (builder) => {
@@ -71,11 +73,13 @@ const authSlice = createSlice({
       state["x-access-token"] = action.payload.token;
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("x-access-token", action.payload.token);
+      localStorage.setItem("role",action?.payload?.role);
     });
 
     builder.addCase(register.rejected, (state) => {
       state.isLoggedIn = false;
       state["x-access-token"] = null;
+      state.role = null;
     });
 
     builder.addCase(login.fulfilled, (state, action) => {
@@ -83,11 +87,13 @@ const authSlice = createSlice({
       state["x-access-token"] = action.payload.token;
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("x-access-token", action.payload.token);
+      localStorage.setItem("role",action?.payload?.role);
     });
 
     builder.addCase(login.rejected, (state) => {
       state.isLoggedIn = false;
       state["x-access-token"] = null;
+      state.role = null;
     });
   }
 });

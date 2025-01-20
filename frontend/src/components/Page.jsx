@@ -48,12 +48,18 @@ const Page = () => {
 
   // Handle input change for Add Page Modal
   const handleAddPageChange = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     const { name, value } = e.target;
     setNewPage({ ...newPage, [name]: value });
   };
 
   // Handle input change for Edit Page Modal
   const handleEditPageChange = (e) => {
+    e.preventDefault();
+    e.stopPropagation(); // Stop the event from bubbling 
+    
     const { name, value } = e.target;
     setUpdatedPage({ ...updatedPage, [name]: value });
   };
@@ -61,6 +67,7 @@ const Page = () => {
   // Add Page Submit Handler
   const handleAddPage = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
     if (newPage.title && newPage.slug) {
       await dispatch(addPage({...newPage,domain_id:id,token}));
       setShowAddModal(false);
@@ -71,6 +78,8 @@ const Page = () => {
   // Edit Page Submit Handler
   const handleUpdatePage = (e) => {
     e.preventDefault();
+    e.stopPropagation(); // Stop the event from bubbling up
+
     if (updatedPage.title && updatedPage.slug) {
       updatedPage.token = token;
       dispatch(updatePage({...updatedPage,token}));
@@ -80,13 +89,19 @@ const Page = () => {
   };
 
   // Delete Page Handler
-  const handleDeletePage = async () => {
+  const handleDeletePage = async (e) => {
+    e.preventDefault();
+    e.stopPropagation(); // Stop the event from bubbling up
+
     await dispatch(deletePage({pageToDelete,token}));
     await dispatch(getPages({id,token}));
     setShowDeleteModal(false);
   };
 
-  const handleEditButtonClick = (page) => {
+  const handleEditButtonClick = (e,page) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     setPageToEdit(page);  // Set the page you're editing
     setUpdatedPage({
       title: page?.title,
@@ -96,6 +111,12 @@ const Page = () => {
     setShowEditModal(true); // Open the modal
   };
 
+  const navigateToSection = (e,pageId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`/${pageId}/sections`);
+  }
+
   return (
     <div className="container mx-auto p-4">
       {loading && <div className="text-xl text-center text-gray-500">Loading...</div>}
@@ -104,20 +125,21 @@ const Page = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {pages?.length > 0 ? (
           pages.map((page) => (
-            <Link to={`/${page._id}/sections`}><div
+            <div
+             onClick={(e) => navigateToSection(e,page?._id)}
               key={page._id}
               className="bg-white p-6 border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition duration-300 ease-in-out transform hover:scale-105 relative"
             >
               {/* Edit and Delete Icons at the top right */}
               <div className="absolute top-2 right-2 flex gap-2">
                 <button
-                  onClick={() => handleEditButtonClick(page)} // Using the function to set the values
+                  onClick={() => handleEditButtonClick(e,page)} // Using the function to set the values
                   className="text-blue-500 hover:text-blue-600"
                 >
                   <FaEdit size={20} />
                 </button>
                 <button
-                  onClick={() => {
+                  onClick={(e) => {
                     setPageToDelete(page._id);
                     setShowDeleteModal(true);
                   }}
@@ -141,7 +163,6 @@ const Page = () => {
                 </a>
               </div>
             </div>
-            </Link>
           ))
         ) : (
           <div className="text-xl text-center text-gray-500">No pages found.</div>

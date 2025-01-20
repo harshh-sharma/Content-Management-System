@@ -22,6 +22,7 @@ export const createUser = async (req, res) => {
       return res.status(StatusCodes.OK).json({
         success: true,
         message: 'User successfully registered',
+        role:user?.role,
         data: user,
         token
       });
@@ -67,6 +68,7 @@ export const loginUser = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "User successfully loggedIn",
+      role:isUserExist?.role,
       token,
     });
   } catch (error) {

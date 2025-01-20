@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getDomains, addDomain, deleteDomain, updateDomain } from "../redux/slices/domainSlice";
 import { FaEdit, FaTrashAlt } from 'react-icons/fa'; // Importing icons
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Domain = () => {
   const token = useSelector((store) => store.auth['x-access-token']);
   const dispatch = useDispatch();
   const domains = useSelector((store) => store.domain.domains);
+
+  const navigate = useNavigate();
 
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -23,6 +25,9 @@ const Domain = () => {
   };
 
   const handleInputChange = (e) => {
+    e.preventDefault();
+    e.stopPropagation(); 
+
     const { name, value } = e.target;
     setNewDomain({
       ...newDomain,
@@ -32,6 +37,8 @@ const Domain = () => {
 
   const handleAddDomain = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
+
     if (newDomain.name && newDomain.url) {
       newDomain.token = token;
       await dispatch(addDomain({...newDomain,token,domain_id:id}));
@@ -42,6 +49,9 @@ const Domain = () => {
   };
 
   const handleEditInputChange = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     const { name, value } = e.target;
     setDomainToEdit({
       ...domainToEdit,
@@ -51,6 +61,8 @@ const Domain = () => {
 
   const handleUpdateDomain = async (e) => {
     e.preventDefault();
+    e.stopPropagation(); // Stop the event from bubbling up
+
     if (domainToEdit.name && domainToEdit.url) {
       await dispatch(updateDomain({...domainToEdit,token}));
       // await dispatch(getDomains());
@@ -58,12 +70,20 @@ const Domain = () => {
     }
   };
 
-  const handleDeleteDomain = async (id) => {
+  const handleDeleteDomain = async (e,id) => {
+    e.preventDefault();
+    e.stopPropagation(); // Stop the event from bubbling up
+
     if (window.confirm("Are you sure you want to delete this domain?")) {
       await dispatch(deleteDomain({id,token}));
       await dispatch(getDomains());
     }
   };
+
+  const naviagateToPage = (e,id) => {
+    e.preventDefault();
+    navigate(`/${id}/pages`)
+  }
 
 
   return (
@@ -76,7 +96,7 @@ const Domain = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
         {domains?.length > 0 ? (
           domains.map((website, index) => (
-            <Link to={`/${website?._id}/pages`}><div key={index} className="relative w-full sm:w-72 md:w-80 lg:w-96 p-6 bg-white rounded-xl shadow-lg hover:scale-105 transform transition-all duration-300 hover:shadow-2xl hover:bg-gray-200">
+            <div key={index} onClick={(e) => naviagateToPage(e,website?._id)} className="relative w-full sm:w-72 md:w-80 lg:w-96 p-6 bg-white rounded-xl shadow-lg hover:scale-105 transform transition-all duration-300 hover:shadow-2xl hover:bg-gray-200">
               
               {/* Edit and Delete Buttons at the top-right */}
               <div className="absolute top-2 right-2 flex gap-4">
@@ -90,7 +110,7 @@ const Domain = () => {
 
                 {/* Delete Button */}
                 <button
-                  onClick={() => handleDeleteDomain(website._id)}
+                  onClick={(e) => handleDeleteDomain(e,website._id)}
                   className="p-2 bg-gray-600 text-white rounded-full hover:bg-gray-500 transition-colors shadow-md"
                 >
                   <FaTrashAlt className="text-lg" />
@@ -120,7 +140,6 @@ const Domain = () => {
                 Visit Website
               </button>
             </div>
-            </Link>
           ))
         ) : (
           <div>No domains available</div>
@@ -182,7 +201,7 @@ const Domain = () => {
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">Edit Domain</h2>
-            <form onSubmit={handleUpdateDomain}>
+            <form onSubmit={(e) => handleUpdateDomain(e)}>
               <div className="mb-4">
                 <label htmlFor="name" className="block text-gray-700">Domain Name</label>
                 <input
