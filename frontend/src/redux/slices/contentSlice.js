@@ -17,6 +17,8 @@ export const getContents = createAsyncThunk(
           success: "Successfully get contents", // Success message
           error: (error) => {
             // Error handling
+            console.log(error);
+            
             return error?.response?.data?.message || "Failed to get contents";
           },
         }
@@ -65,7 +67,27 @@ export const addContent = createAsyncThunk(
   }
 );
 
-export const deleteContent = () => {};
+export const deleteContent = createAsyncThunk('/content/:id',async(data,{ rejectWithValue }) => {
+   try {
+      const response = axiosInstance.delete(`/content/${data?.contentId}`,{
+        headers:{
+          'x-access-token':data?.token
+        }
+      })
+
+      toast.promise(response,{
+        loading:'deleting...',
+        success:'successfully deleted content',
+        error:'failed to delete content'
+      })
+
+      return response;
+   } catch (error) {
+    console.log("err",error);
+    
+    return rejectWithValue(error?.response?.data || "Something went wrong");
+   }
+})
 export const updateContent = () => {};
 
 const contentSlice = createSlice({

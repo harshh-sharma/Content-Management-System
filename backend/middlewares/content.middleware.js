@@ -54,6 +54,8 @@ const validateUpdateContent = (req, res, next) => {
 
 const validateDeleteContent = (req, res, next) => {
     const { id } = req.params;
+    console.log("id",id);
+    
 
     // Regex pattern to validate MongoDB ObjectId format
     const objectIdRegex = /^[0-9a-fA-F]{24}$/;

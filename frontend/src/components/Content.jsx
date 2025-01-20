@@ -22,7 +22,12 @@ const Content = () => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      await dispatch(getContents({ id, token }));
+      const response = await dispatch(getContents({ id, token }));
+      if(response?.payload?.message == 'Token has expired. Please log in again.'){
+        logoutUser(navigate,dispatch);
+     }else{
+      await dispatch(getContents({id,token}))
+     }
       setLoading(false);
     };
     fetchData();
@@ -46,9 +51,12 @@ const Content = () => {
   const handleAddContent = async () => {
     // Dispatch the action with formData
     const response = await dispatch(addContent({ id, ...newContent,selectedFile ,token }));
-
+    console.log("res",response);
+    
     if(response?.payload?.message == 'Token has expired. Please log in again.'){
       logoutUser(navigate,dispatch);
+   }else{
+    await dispatch(getContents({id,token}))
    }
     // Reset the form
     resetForm();
@@ -62,8 +70,13 @@ const Content = () => {
     setEditModalOpen(false);
   };
 
-  const handleDeleteContent = (contentId) => {
-    dispatch(deleteContent({ id: contentId, token }));
+  const handleDeleteContent = async (contentId) => {
+    const response = await dispatch(deleteContent({contentId,token}));
+    if(response?.payload?.message == 'Token has expired. Please log in again.'){
+      logoutUser(navigate,dispatch);
+   }else{
+    await dispatch(getContents({id,token}))
+   }
   };
 
   const openEditModal = (content) => {
@@ -243,7 +256,7 @@ const ContentCard = ({ content, onEdit, onDelete }) => (
         <FiEdit size={20} />
       </button>
       <button
-        onClick={() => onDelete(content.id)}
+        onClick={() => onDelete(content?._id)}
         className="p-2 text-red-600 hover:bg-red-200 rounded-full transition duration-300"
         aria-label="Delete Content"
       >
