@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { register } from '../redux/slices/authSlice'; // Assuming you have a register action
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
+  const navigate = useNavigate();
+
   const dispatch = useDispatch();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -17,6 +20,7 @@ const Register = () => {
 
     if (response?.payload) {
       // Handle successful registration
+      navigate('/');
     } else {
       // Handle registration error
     }

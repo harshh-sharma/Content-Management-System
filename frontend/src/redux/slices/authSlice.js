@@ -104,7 +104,7 @@ const authSlice = createSlice({
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("x-access-token", action.payload.token);
       localStorage.setItem("role",action?.payload?.role);
-      localStorage.setItem("user",JSON.stringify(action?.payload?.user));
+      localStorage.setItem("user",JSON.stringify(action?.payload?.data));
     });
 
     builder.addCase(register.rejected, (state) => {
