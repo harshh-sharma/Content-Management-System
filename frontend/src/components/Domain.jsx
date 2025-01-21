@@ -41,7 +41,7 @@ const Domain = () => {
 
     if (newDomain.name && newDomain.url) {
       newDomain.token = token;
-      await dispatch(addDomain({...newDomain,token,domain_id:id}));
+      await dispatch(addDomain({...newDomain,token}));
       await dispatch(getDomains());
       setShowModal(false);
       setNewDomain({ name: "", url: "" });
