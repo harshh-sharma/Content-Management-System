@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const HomePage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-r from-gray-100 to-gray-300 flex flex-col">
@@ -6,7 +8,7 @@ const HomePage = () => {
         <section className="text-center">
           <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800 mb-6">Manage Your Content Effortlessly</h2>
           <p className="text-xl text-gray-600 mb-10">Experience the ultimate content management system with all the tools you need in one place.</p>
-          <a href="#" className="bg-blue-600 text-white px-8 py-4 rounded-full shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-110">Get Started</a>
+          <Link to={'/domains'} className="bg-blue-600 text-white px-8 py-4 rounded-full shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-110">Get Started </Link>
         </section>
 
         <section className="mt-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
