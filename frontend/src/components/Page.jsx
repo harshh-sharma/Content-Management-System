@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getPages, addPage, updatePage, deletePage } from '../redux/slices/pageSlice';
-import { FaEdit, FaTrash } from 'react-icons/fa'; // Import FontAwesome icons
+import { FaEdit, FaTrash, FaArrowLeft } from 'react-icons/fa'; // Import FontAwesome icons
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import logoutUser from '../utils/logoutFunction';
 
 const Page = () => {
-  const {id} = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
 
   const token = useSelector((store) => store?.auth['x-access-token']);
   const dispatch = useDispatch();
-  const pages = useSelector((store => store.page.pages));
+  const pages = useSelector((store) => store.page.pages);
   const [loading, setLoading] = useState(false);
 
   // Modal States
@@ -25,18 +25,18 @@ const Page = () => {
   const [newPage, setNewPage] = useState({ title: '', slug: '' });
 
   // Edit Page State
-  const [updatedPage, setUpdatedPage] = useState({ title: '', slug: '',id:'' });
+  const [updatedPage, setUpdatedPage] = useState({ title: '', slug: '', id: '' });
 
   useEffect(() => {
     const fetchPages = async () => {
       try {
         setLoading(true);
-        const response = await dispatch(getPages({id, token }));
-        console.log('response',response);
-        if(response?.payload?.message == 'Token has expired. Please log in again.'){
-           logoutUser(navigate,dispatch);
+        const response = await dispatch(getPages({ id, token }));
+        console.log('response', response);
+        if (response?.payload?.message == 'Token has expired. Please log in again.') {
+          logoutUser(navigate, dispatch);
         }
-        
+
         setLoading(false);
       } catch (err) {
         setLoading(false);
@@ -50,7 +50,7 @@ const Page = () => {
   const handleAddPageChange = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     const { name, value } = e.target;
     setNewPage({ ...newPage, [name]: value });
   };
@@ -59,7 +59,7 @@ const Page = () => {
   const handleEditPageChange = (e) => {
     e.preventDefault();
     e.stopPropagation(); // Stop the event from bubbling 
-    
+
     const { name, value } = e.target;
     setUpdatedPage({ ...updatedPage, [name]: value });
   };
@@ -69,11 +69,11 @@ const Page = () => {
     e.preventDefault();
     e.stopPropagation();
     if (newPage.title && newPage.slug) {
-      const response = await dispatch(addPage({...newPage,domain_id:id,token}));
-      
-      if(!response?.payload?.success && (response?.payload?.message == 'Token has expired. Please log in again.' || response?.payload?.message == 'Invalid Token')){
-        logoutUser(navigate,dispatch);
-    }
+      const response = await dispatch(addPage({ ...newPage, domain_id: id, token }));
+
+      if (!response?.payload?.success && (response?.payload?.message == 'Token has expired. Please log in again.' || response?.payload?.message == 'Invalid Token')) {
+        logoutUser(navigate, dispatch);
+      }
 
       setShowAddModal(false);
       setNewPage({ title: '', slug: '' });
@@ -87,12 +87,12 @@ const Page = () => {
 
     if (updatedPage.title && updatedPage.slug) {
       updatedPage.token = token;
-      const response = await dispatch(updatePage({...updatedPage,token}));
-      if(!response?.payload?.success && (response?.payload?.message == 'Token has expired. Please log in again.' || response?.payload?.message == 'Invalid Token')){
-        logoutUser(navigate,dispatch);
-    }else{
-      dispatch(getPages({token,id}));
-    }
+      const response = await dispatch(updatePage({ ...updatedPage, token }));
+      if (!response?.payload?.success && (response?.payload?.message == 'Token has expired. Please log in again.' || response?.payload?.message == 'Invalid Token')) {
+        logoutUser(navigate, dispatch);
+      } else {
+        dispatch(getPages({ token, id }));
+      }
       setShowEditModal(false);
     }
   };
@@ -101,16 +101,16 @@ const Page = () => {
   const handleDeletePage = async (e) => {
     e.preventDefault();
     e.stopPropagation(); // Stop the event from bubbling up
-    const response = await dispatch(deletePage({pageToDelete,token}));
-    if(!response?.payload?.success && (response?.payload?.message == 'Token has expired. Please log in again.' || response?.payload?.message == 'Invalid Token')){
-      logoutUser(navigate,dispatch);
-  }else{
-    dispatch(getPages({token,id}));
-  }
+    const response = await dispatch(deletePage({ pageToDelete, token }));
+    if (!response?.payload?.success && (response?.payload?.message == 'Token has expired. Please log in again.' || response?.payload?.message == 'Invalid Token')) {
+      logoutUser(navigate, dispatch);
+    } else {
+      dispatch(getPages({ token, id }));
+    }
     setShowDeleteModal(false);
   };
 
-  const handleEditButtonClick = (e,page) => {
+  const handleEditButtonClick = (e, page) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -123,14 +123,22 @@ const Page = () => {
     setShowEditModal(true); // Open the modal
   };
 
-  const navigateToSection = (e,pageId) => {
+  const navigateToSection = (e, pageId) => {
     e.preventDefault();
     e.stopPropagation();
     navigate(`/${pageId}/sections`);
-  }
+  };
 
   return (
     <div className="container mx-auto p-4">
+      {/* Back Button */}
+      <button
+        onClick={() => navigate(-1)} // Navigate back to the previous page
+        className="text-xl text-blue-600 flex items-center gap-2 mb-4"
+      >
+        <FaArrowLeft size={24} /> Back
+      </button>
+
       {loading && <div className="text-xl text-center text-gray-500">Loading...</div>}
 
       {/* Page Cards */}
@@ -138,14 +146,14 @@ const Page = () => {
         {pages?.length > 0 ? (
           pages.map((page) => (
             <div
-             onClick={(e) => navigateToSection(e,page?._id)}
+              onClick={(e) => navigateToSection(e, page?._id)}
               key={page._id}
               className="bg-white p-6 border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition duration-300 ease-in-out transform hover:scale-105 relative"
             >
               {/* Edit and Delete Icons at the top right */}
               <div className="absolute top-2 right-2 flex gap-2">
                 <button
-                  onClick={() => handleEditButtonClick(e,page)} // Using the function to set the values
+                  onClick={() => handleEditButtonClick(e, page)} // Using the function to set the values
                   className="text-blue-500 hover:text-blue-600"
                 >
                   <FaEdit size={20} />

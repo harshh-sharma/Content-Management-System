@@ -2,17 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getContents, addContent, updateContent, deleteContent } from '../redux/slices/contentSlice';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FiEdit, FiX, FiPlus } from 'react-icons/fi';
+import { FiEdit, FiX, FiPlus, FiArrowLeft } from 'react-icons/fi';
 import { AiOutlineLoading } from 'react-icons/ai';
 import logoutUser from '../utils/logoutFunction';
 
 const Content = () => {
   const navigate = useNavigate();
-  const token = useSelector(store => store?.auth['x-access-token']);
+  const token = useSelector((store) => store?.auth['x-access-token']);
   const { id } = useParams();
   const dispatch = useDispatch();
-  const contentList = useSelector(store => store?.content?.contents);
-  console.log("contentList ",contentList);
+  const contentList = useSelector((store) => store?.content?.contents);
   
   const [newContent, setNewContent] = useState({ content_type: 'text', content_data: { text: '', image_url: '' } });
   const [selectedFile, setSelectedFile] = useState(null);
@@ -26,13 +25,11 @@ const Content = () => {
     const fetchData = async () => {
       setLoading(true);
       const response = await dispatch(getContents({ id, token }));
-      console.log("response",response);
-      
-      if(response?.payload?.message == 'Token has expired. Please log in again.'){
-        // logoutUser(navigate,dispatch);
-     }else{
-        await dispatch(getContents({id,token}))
-     }
+      if (response?.payload?.message === 'Token has expired. Please log in again.') {
+        logoutUser(navigate, dispatch);
+      } else {
+        await dispatch(getContents({ id, token }));
+      }
       setLoading(false);
     };
     fetchData();
@@ -44,9 +41,9 @@ const Content = () => {
       setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setNewContent(prevState => ({
+        setNewContent((prevState) => ({
           ...prevState,
-          content_data: { ...prevState.content_data, image_url: reader.result }
+          content_data: { ...prevState.content_data, image_url: reader.result },
         }));
       };
       reader.readAsDataURL(file);
@@ -54,38 +51,31 @@ const Content = () => {
   };
 
   const handleAddContent = async () => {
-    // Dispatch the action with formData
-    const response = await dispatch(addContent({ id, ...newContent,selectedFile ,token }));
-    console.log("response",response);
-    
-    if(response?.payload?.message == 'Token has expired. Please log in again.' || response?.payload?.message == 'Invalid Token'){
-      logoutUser(navigate,dispatch);
-   }else{
-     await dispatch(getContents({id,token}))
-   }
-    // Reset the form
+    const response = await dispatch(addContent({ id, ...newContent, selectedFile, token }));
+    if (response?.payload?.message === 'Token has expired. Please log in again.' || response?.payload?.message === 'Invalid Token') {
+      logoutUser(navigate, dispatch);
+    } else {
+      await dispatch(getContents({ id, token }));
+    }
     resetForm();
   };
-  
-  
 
   const handleUpdateContent = async () => {
     const updatedContent = { ...newContent, id: currentContentId };
     const response = await dispatch(updateContent({ updatedContent, token }));
-    
-    if(response?.payload?.message == 'Token has expired. Please log in again.' || response?.payload?.message == 'Invalid Token'){
-      logoutUser(navigate,dispatch);
-   }
+    if (response?.payload?.message === 'Token has expired. Please log in again.' || response?.payload?.message === 'Invalid Token') {
+      logoutUser(navigate, dispatch);
+    }
     setEditModalOpen(false);
   };
 
   const handleDeleteContent = async (contentId) => {
-    const response = await dispatch(deleteContent({contentId,token}));
-    if(response?.payload?.message == 'Token has expired. Please log in again.'){
-      logoutUser(navigate,dispatch);
-   }else{
-    await dispatch(getContents({id,token}))
-   }
+    const response = await dispatch(deleteContent({ contentId, token }));
+    if (response?.payload?.message === 'Token has expired. Please log in again.') {
+      logoutUser(navigate, dispatch);
+    } else {
+      await dispatch(getContents({ id, token }));
+    }
   };
 
   const openEditModal = (content) => {
@@ -98,7 +88,7 @@ const Content = () => {
     setNewContent({
       ...newContent,
       content_type: e.target.value,
-      content_data: e.target.value === 'image' ? { text: '', image_url: '' } : newContent.content_data
+      content_data: e.target.value === 'image' ? { text: '', image_url: '' } : newContent.content_data,
     });
   };
 
@@ -117,9 +107,9 @@ const Content = () => {
   const getUserImage = (e) => {
     const uploadImage = e.target.files[0];
     if (uploadImage) {
-      setNewContent(prevState => ({
+      setNewContent((prevState) => ({
         ...prevState,
-        content_data: { ...prevState.content_data, image_url: uploadImage }
+        content_data: { ...prevState.content_data, image_url: uploadImage },
       }));
       const fileReader = new FileReader();
       fileReader.readAsDataURL(uploadImage);
@@ -130,7 +120,17 @@ const Content = () => {
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto bg-gray-100 min-h-screen">
+    <div className="p-6 max-w-6xl mx-auto bg-gray-100 min-h-screen relative">
+      {/* Back Arrow */}
+      <button
+        onClick={() => navigate(-1)}
+        className="absolute top-4 left-4 p-2 bg-gray-200 rounded-full shadow-md hover:bg-gray-300 transition-transform transform hover:scale-110 duration-300"
+        aria-label="Go Back"
+      >
+        <FiArrowLeft size={24} className="text-gray-700" />
+      </button>
+
+      {/* Add Content Button */}
       <button
         onClick={openAddModal}
         className="fixed bottom-4 right-4 p-4 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-110 duration-300"
@@ -212,15 +212,17 @@ const Modal = ({ title, isOpen, onClose, onSubmit, newContent, handleContentType
           <option value="image">Image</option>
         </select>
         {newContent.content_type !== 'image' && (
-          <input
-            type="text"
+          <textarea
             placeholder="Text"
             value={newContent.content_data.text}
-            onChange={(e) => setNewContent({
-              ...newContent,
-              content_data: { ...newContent.content_data, text: e.target.value }
-            })}
+            onChange={(e) =>
+              setNewContent({
+                ...newContent,
+                content_data: { ...newContent.content_data, text: e.target.value },
+              })
+            }
             className="p-3 border rounded w-full mb-4 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            rows="4"
           />
         )}
         {newContent.content_type !== 'text' && (
@@ -240,64 +242,42 @@ const Modal = ({ title, isOpen, onClose, onSubmit, newContent, handleContentType
         )}
       </div>
       <div className="flex justify-end space-x-4">
-        <button onClick={onClose} className="p-3 bg-gray-500 text-white rounded shadow hover:bg-gray-600 transition duration-300">Cancel</button>
-        <button onClick={() => {
-          console.log("on submit excecuted");
-          onSubmit();
-          
-          
-        }} className="p-3 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition duration-300">{isEditing ? 'Update' : 'Add'}</button>
+        <button onClick={onClose} className="p-3 bg-gray-500 text-white rounded shadow hover:bg-gray-600 transition duration-300">
+          Cancel
+        </button>
+        <button onClick={onSubmit} className="p-3 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition duration-300">
+          {isEditing ? 'Update' : 'Add'}
+        </button>
       </div>
     </div>
   </div>
 );
 
 const ContentCard = ({ content, onEdit, onDelete }) => (
-  <div
-    className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-transform duration-300 ease-in-out transform hover:scale-105 relative"
-  >
+  <div className="bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-105 relative flex flex-col">
     <div className="absolute top-3 right-3 flex space-x-2">
       <button
-        // onClick={() => onEdit(content)}
-        className="p-2 text-green-600 hover:bg-green-200 rounded-full transition duration-300"
+        onClick={() => onEdit(content)}
+        className="p-2 text-blue-600 hover:bg-blue-100 rounded-full transition duration-300"
         aria-label="Edit Content"
       >
         <FiEdit size={20} />
       </button>
       <button
         onClick={() => onDelete(content?._id)}
-        className="p-2 text-red-600 hover:bg-red-200 rounded-full transition duration-300"
+        className="p-2 text-red-600 hover:bg-red-100 rounded-full transition duration-300"
         aria-label="Delete Content"
       >
         <FiX size={20} />
       </button>
     </div>
-    <div className="mb-6">
-      <p className="font-semibold text-gray-800 text-lg">
-        <span className="block mb-1">Content Type:</span>
-        <span className="text-blue-600">{content.content_type}</span>
-      </p>
+    <div className="mb-4">
+      <h3 className="text-lg font-semibold text-gray-700">
+        Content Type: <span className="text-blue-600 ml-1 capitalize">{content.content_type.replace('_', ' ')}</span>
+      </h3>
     </div>
-    <div className="text-gray-600">
-      <h3 className="text-xl font-bold text-gray-900 mb-3">Content Details:</h3>
-      <p className="mb-4">{content.content_data.text}</p>
-      {content.content_type === 'image' || content.content_type === 'text_and_image' ? (
-        content.content_data.image_url ? (
-          <div className="mt-4">
-            <strong className="block mb-2">Image:</strong>
-            <img
-              src={content.content_data.image_url}
-              alt="Content"
-              className="w-full rounded-lg shadow-md hover:scale-105 transform transition duration-300 ease-in-out"
-            />
-          </div>
-        ) : (
-          <div className="mt-4 bg-gray-100 text-gray-500 text-center py-4 rounded-md">
-            No image available.
-          </div>
-        )
-      ) : null}
-    </div>
+    {content?.content_data?.text && <p className="text-gray-600 mb-4">{content.content_data.text}</p>}
+    {content?.content_data?.image_url && <img src={content.content_data.image_url} alt="Content" className="rounded-lg object-cover" />}
   </div>
 );
 

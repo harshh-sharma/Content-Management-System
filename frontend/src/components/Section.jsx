@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { getSections, addSection, updateSection, deleteSection } from '../redux/slices/sectionSlice';
 import { FaSortNumericDown, FaEdit, FaTrash } from 'react-icons/fa';
+import { FiArrowLeft } from 'react-icons/fi'; // Import back arrow icon
 import logoutUser from '../utils/logoutFunction';
 
 const Section = () => {
@@ -33,7 +34,7 @@ const Section = () => {
         console.log(response);
         if(!response?.payload?.success && (response?.payload?.message == 'Token has expired. Please log in again.' || response?.payload?.message == 'Invalid Token')){
           logoutUser(navigate,dispatch);
-      }
+        }
         
         setLoading(false); // Stop loading
       } catch (err) {
@@ -81,6 +82,13 @@ const Section = () => {
 
   return (
     <div className="container mx-auto p-6">
+      {/* Back Arrow */}
+      <div className="mb-4">
+        <button onClick={() => navigate(-1)} className="flex items-center text-blue-600">
+          <FiArrowLeft size={24} className="mr-2" /> Back
+        </button>
+      </div>
+
       {/* Loader */}
       {loading && <div className="text-2xl text-center text-blue-600 animate-pulse">Loading...</div>}
 
