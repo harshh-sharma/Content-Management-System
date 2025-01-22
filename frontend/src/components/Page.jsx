@@ -69,21 +69,30 @@ const Page = () => {
     e.preventDefault();
     e.stopPropagation();
     if (newPage.title && newPage.slug) {
-      await dispatch(addPage({...newPage,domain_id:id,token}));
+      const response = await dispatch(addPage({...newPage,domain_id:id,token}));
+      
+      if(!response?.payload?.success && (response?.payload?.message == 'Token has expired. Please log in again.' || response?.payload?.message == 'Invalid Token')){
+        logoutUser(navigate,dispatch);
+    }
+
       setShowAddModal(false);
       setNewPage({ title: '', slug: '' });
     }
   };
 
   // Edit Page Submit Handler
-  const handleUpdatePage = (e) => {
+  const handleUpdatePage = async (e) => {
     e.preventDefault();
     e.stopPropagation(); // Stop the event from bubbling up
 
     if (updatedPage.title && updatedPage.slug) {
       updatedPage.token = token;
-      dispatch(updatePage({...updatedPage,token}));
-      dispatch(getPages({token,id}))
+      const response = await dispatch(updatePage({...updatedPage,token}));
+      if(!response?.payload?.success && (response?.payload?.message == 'Token has expired. Please log in again.' || response?.payload?.message == 'Invalid Token')){
+        logoutUser(navigate,dispatch);
+    }else{
+      dispatch(getPages({token,id}));
+    }
       setShowEditModal(false);
     }
   };
@@ -92,9 +101,12 @@ const Page = () => {
   const handleDeletePage = async (e) => {
     e.preventDefault();
     e.stopPropagation(); // Stop the event from bubbling up
-
-    await dispatch(deletePage({pageToDelete,token}));
-    await dispatch(getPages({id,token}));
+    const response = await dispatch(deletePage({pageToDelete,token}));
+    if(!response?.payload?.success && (response?.payload?.message == 'Token has expired. Please log in again.' || response?.payload?.message == 'Invalid Token')){
+      logoutUser(navigate,dispatch);
+  }else{
+    dispatch(getPages({token,id}));
+  }
     setShowDeleteModal(false);
   };
 

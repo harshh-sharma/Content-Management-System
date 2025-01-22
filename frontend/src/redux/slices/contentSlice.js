@@ -19,7 +19,7 @@ export const getContents = createAsyncThunk(
             // Error handling
             console.log(error);
             
-            return error?.response?.data?.message || "Failed to get contents";
+            return rejectWithValue(error?.response?.data?.message || "Failed to get contents");
           },
         }
       );
@@ -37,35 +37,37 @@ export const addContent = createAsyncThunk(
   "/content/",
   async (data, { rejectWithValue }) => {
     try {
-      console.log("data==", data);
-      // return;
       const formData = new FormData();
       formData.append("section_id", data?.id);
       formData.append("content_type", data?.content_type);
-      formData.append("text", data?.content_data.text);
-      formData.append("file", data?.content_data.image_url);
+      formData.append("text", data?.content_data?.text);
+      formData.append("file", data?.content_data?.image_url);
 
-      const response = axiosInstance.post("/content/", formData, {
+      // Await the response
+      const response = await axiosInstance.post("/content/", formData, {
         headers: {
           "x-access-token": data?.token,
         },
       });
 
-      toast.promise(response, {
-        loading: "creating ...",
+      // Use response data
+      toast.promise(Promise.resolve(response), {
+        loading: "Creating...",
         success: "Content successfully created",
-        error: "failed to create content",
+        error: "Failed to create content",
       });
 
-      return response;
+      return response?.data; // Return the data from the response
     } catch (error) {
-      console.log(error);
+      console.log("Error:", error);
 
-      // If the request fails, reject with value
+      // Show error toast and reject with value
+      toast.error(error?.response?.data?.message || "Something went wrong");
       return rejectWithValue(error?.response?.data || "Something went wrong");
     }
   }
 );
+
 
 export const deleteContent = createAsyncThunk('/content/:id',async(data,{ rejectWithValue }) => {
    try {
@@ -99,7 +101,6 @@ const contentSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(getContents?.fulfilled, (state, action) => {
       console.log("action ", action);
-
       state.contents = action?.payload?.data;
     });
   },

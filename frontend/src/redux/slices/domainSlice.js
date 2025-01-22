@@ -16,25 +16,34 @@ export const getDomains = createAsyncThunk("/domain/",async () => {
     }
   })
 
-export const addDomain = createAsyncThunk("/domain/",async (data) => {
-  try {
-    console.log("data",data);
-    
-    const response = axiosInstance.post("/domain",data,{
-      headers: {
-        'x-access-token': data?.token, // Sending the token in the headers
-      },
-    });
-    toast.promise(response,{
-     loading:"creating...",
-     success:"domain created successfully",
-     error:"failed to create the domain"
-    })
-    return (await response);
- } catch (error) {
-   toast.error(error?.response?.data?.message);
- }
-})
+  export const addDomain = createAsyncThunk("/domain/", async (data, { rejectWithValue }) => {
+    try {
+      console.log("data", data);
+  
+      const response = axiosInstance.post("/domain", data, {
+        headers: {
+          'x-access-token': data?.token, // Sending the token in the headers
+        },
+      });
+  
+      toast.promise(response, {
+        loading: "Creating...",
+        success: "Domain created successfully",
+        error: "Failed to create the domain",
+      });
+  
+      return (await response)?.data; // Ensure you're returning the actual data from the response
+    } catch (error) {
+      console.log("Error:", error);
+  
+      // Show a toast for the error
+      toast.error(error?.response?.data?.message || "An error occurred");
+  
+      // Use rejectWithValue to pass the error back to the rejected state
+      return rejectWithValue(error?.response?.data);
+    }
+  });
+  
 
 export const deleteDomain = createAsyncThunk("/domain/:id",async (data) => {
   try {

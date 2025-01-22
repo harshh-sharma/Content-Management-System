@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { getSections, addSection, updateSection, deleteSection } from '../redux/slices/sectionSlice';
 import { FaSortNumericDown, FaEdit, FaTrash } from 'react-icons/fa';
+import logoutUser from '../utils/logoutFunction';
 
 const Section = () => {
+  const navigate = useNavigate();
+
   const token = useSelector(store => store?.auth['x-access-token']);
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -28,6 +31,9 @@ const Section = () => {
         setLoading(true); // Start loading
         const response = await dispatch(getSections({ id, token }));
         console.log(response);
+        if(!response?.payload?.success && (response?.payload?.message == 'Token has expired. Please log in again.' || response?.payload?.message == 'Invalid Token')){
+          logoutUser(navigate,dispatch);
+      }
         
         setLoading(false); // Stop loading
       } catch (err) {

@@ -20,7 +20,7 @@ function App() {
       <Route path='/domains' element={<ProtectedRoute ><Domain /></ProtectedRoute>} />
       <Route path='/:id/pages' element={<ProtectedRoute requiredRole={['ADMIN','SUPERADMIN']}><Page /></ProtectedRoute>} />
       <Route path='/:id/sections' element={<ProtectedRoute requiredRole={['ADMIN','SUPERADMIN']}><Section /></ProtectedRoute>} />
-      <Route path='/:id/contents' element={<ProtectedRoute requiredRole={'ADMIN'}><Content /></ProtectedRoute>} />
+      <Route path='/:id/contents' element={<ProtectedRoute requiredRole={['ADMIN','SUPERADMIN']}><Content /></ProtectedRoute>} />
       <Route path='/dashboard' element={<ProtectedRoute requiredRole={'SUPERADMIN'}><Dashboard /></ProtectedRoute>} />
 
       <Route path='/unauthorized' element={<Unauthorized/>} />

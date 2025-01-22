@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getContents, addContent, updateContent, deleteContent } from '../redux/slices/contentSlice';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FiEdit, FiX, FiPlus } from 'react-icons/fi';
 import { AiOutlineLoading } from 'react-icons/ai';
 import logoutUser from '../utils/logoutFunction';
 
 const Content = () => {
+  const navigate = useNavigate();
   const token = useSelector(store => store?.auth['x-access-token']);
   const { id } = useParams();
   const dispatch = useDispatch();
   const contentList = useSelector(store => store?.content?.contents);
+  console.log("contentList ",contentList);
+  
   const [newContent, setNewContent] = useState({ content_type: 'text', content_data: { text: '', image_url: '' } });
   const [selectedFile, setSelectedFile] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
@@ -23,10 +26,12 @@ const Content = () => {
     const fetchData = async () => {
       setLoading(true);
       const response = await dispatch(getContents({ id, token }));
+      console.log("response",response);
+      
       if(response?.payload?.message == 'Token has expired. Please log in again.'){
-        logoutUser(navigate,dispatch);
+        // logoutUser(navigate,dispatch);
      }else{
-      await dispatch(getContents({id,token}))
+        await dispatch(getContents({id,token}))
      }
       setLoading(false);
     };
@@ -51,12 +56,12 @@ const Content = () => {
   const handleAddContent = async () => {
     // Dispatch the action with formData
     const response = await dispatch(addContent({ id, ...newContent,selectedFile ,token }));
-    console.log("res",response);
+    console.log("response",response);
     
-    if(response?.payload?.message == 'Token has expired. Please log in again.'){
+    if(response?.payload?.message == 'Token has expired. Please log in again.' || response?.payload?.message == 'Invalid Token'){
       logoutUser(navigate,dispatch);
    }else{
-    await dispatch(getContents({id,token}))
+     await dispatch(getContents({id,token}))
    }
     // Reset the form
     resetForm();
@@ -64,9 +69,13 @@ const Content = () => {
   
   
 
-  const handleUpdateContent = () => {
+  const handleUpdateContent = async () => {
     const updatedContent = { ...newContent, id: currentContentId };
-    dispatch(updateContent({ updatedContent, token }));
+    const response = await dispatch(updateContent({ updatedContent, token }));
+    
+    if(response?.payload?.message == 'Token has expired. Please log in again.' || response?.payload?.message == 'Invalid Token'){
+      logoutUser(navigate,dispatch);
+   }
     setEditModalOpen(false);
   };
 
@@ -249,7 +258,7 @@ const ContentCard = ({ content, onEdit, onDelete }) => (
   >
     <div className="absolute top-3 right-3 flex space-x-2">
       <button
-        onClick={() => onEdit(content)}
+        // onClick={() => onEdit(content)}
         className="p-2 text-green-600 hover:bg-green-200 rounded-full transition duration-300"
         aria-label="Edit Content"
       >

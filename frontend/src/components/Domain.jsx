@@ -3,9 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { getDomains, addDomain, deleteDomain, updateDomain } from "../redux/slices/domainSlice";
 import { FaEdit, FaTrashAlt } from 'react-icons/fa'; // Importing icons
 import { Link, useNavigate } from "react-router-dom";
+import logoutUser from "../utils/logoutFunction";
 
 const Domain = () => {
   const token = useSelector((store) => store.auth['x-access-token']);
+  const userRole = useSelector(store => store?.auth?.role);
   const dispatch = useDispatch();
   const domains = useSelector((store) => store.domain.domains);
 
@@ -41,8 +43,16 @@ const Domain = () => {
 
     if (newDomain.name && newDomain.url) {
       newDomain.token = token;
-      await dispatch(addDomain({...newDomain,token}));
-      await dispatch(getDomains());
+      const response = await dispatch(addDomain({...newDomain,token}));
+      console.log("response",response);
+      
+      if(!response?.payload?.success && (response?.payload?.message == 'Token has expired. Please log in again.' || response?.payload?.message == 'Invalid Token')){
+          logoutUser(navigate,dispatch);
+      }else{
+        if(response?.payload?.success){
+          await dispatch(getDomains());
+        }
+      }
       setShowModal(false);
       setNewDomain({ name: "", url: "" });
     }
@@ -247,12 +257,12 @@ const Domain = () => {
       )}
 
       {/* Floating Add Button */}
-      <button
+      {userRole && userRole == 'ADMIN' || userRole == 'SUPERADMIN' && <button
         onClick={() => setShowModal(true)}
         className="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 text-white flex items-center justify-center rounded-full shadow-lg hover:scale-110 transform transition-all duration-300 ease-in-out hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
       >
         <span className="text-4xl font-bold">+</span>
-      </button>
+      </button>}
     </div>
   );
 };
