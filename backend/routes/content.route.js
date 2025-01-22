@@ -12,6 +12,6 @@ router.get('/:id',UserMiddleware.isUserAuthenticated,UserMiddleware.isUserAuthor
 router.put('/:id',UserMiddleware.isUserAuthenticated,UserMiddleware.isUserAuthorizied,ContentMiddleware.validateUpdateContent ,ContentController.updateContent);
 router.delete('/:id',UserMiddleware.isUserAuthenticated,UserMiddleware.isUserAuthorizied,ContentMiddleware.validateDeleteContent ,ContentController.deleteContent);
 
-router.get('/:id/contents',ContentController.getContentsRelatedToSection);
+router.get('/:id/contents',UserMiddleware.isUserAuthenticated,UserMiddleware.isUserAuthorizied,ContentController.getContentsRelatedToSection);
 
 export default router;

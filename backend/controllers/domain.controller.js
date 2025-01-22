@@ -2,14 +2,33 @@ import { StatusCodes } from 'http-status-codes';
 import Domain from '../models/domian.model.js';
 
 // Create a new domain
-export const createDomain = (req, res) => {
-    console.log(req.body,req.user);
-    
-    const {id} = req.user;
-    const domain = new Domain({...req.body,user_id:id});
-    domain.save()
-        .then(newDomain => res.json(newDomain))
-        .catch(err => res.status(400).json(err));
+export const createDomain = async (req, res) => {
+   try {
+     console.log(req.body,req.user);
+     
+     const {id} = req.user;
+     const domain = await new Domain({...req.body,user_id:id});
+     await domain.save();
+     
+     if(!domain){
+        return res.status(StatusCodes.BAD_REQUEST).json({
+            success:false,
+            message:'something went wrong'
+        })
+     }
+
+     return res.status(StatusCodes.OK).json({
+        success:true,
+        message:'domain successfully created',
+        data:domain
+     })
+
+   } catch (error) {
+     return res.status(StatusCodes.BAD_REQUEST).json({
+        success:false,
+        message:error?.message
+     })
+   }
 };
 
 // Get all domains
