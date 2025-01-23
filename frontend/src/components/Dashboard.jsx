@@ -21,12 +21,12 @@ const Dashboard = () => {
   const fetchUsers = async () => {
     try {
       const response = await dispatch(getAllUsers({ token })); // Replace with your API endpoint
-      console.log("response",response?.payload?.message);
+      console.log("response",response);
       
       if(response?.payload?.message == 'Token has expired. Please log in again.'){
         logoutUser(navigate,dispatch);
      }else{
-      setUsers(response?.payload);
+      setUsers(response?.payload?.data?.data);
       setLoading(false);
      }
     } catch (err) {

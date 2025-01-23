@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { register } from '../redux/slices/authSlice'; // Assuming you have a register action
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -74,7 +74,7 @@ const Register = () => {
           {loading ? 'Registering...' : 'Register'}
         </button>
         <p className="mt-4 text-sm text-center">
-          Already have an account? <a href="/login" className="text-blue-600 hover:underline">Login</a>
+          Already have an account? <Link to={'/login'} className="text-blue-600 hover:underline">Login</Link>
         </p>
       </form>
     </div>
