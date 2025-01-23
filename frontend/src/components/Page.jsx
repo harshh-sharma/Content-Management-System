@@ -73,6 +73,8 @@ const Page = () => {
 
       if (!response?.payload?.success && (response?.payload?.message == 'Token has expired. Please log in again.' || response?.payload?.message == 'Invalid Token')) {
         logoutUser(navigate, dispatch);
+      }else{
+        await dispatch(getPages({ id, token }));
       }
 
       setShowAddModal(false);
