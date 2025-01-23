@@ -3,6 +3,7 @@ import { createUser,loginUser, getUserById, getUsers, updateUser, deleteUser, up
 import { createSection, deleteSection, getSectionById, getSections, updateSection } from "./section.controller.js"
 import { createPage, deletePage, getPageById, getPages, updatePage,getPagesByDomain , getSectionsByPages } from "./page.controller.js";
 import { createContent, deleteContent, getContentById, getContents, updateContent,getContentsRelatedToSection } from "./content.controller.js";
+import { getWebsiteContent } from "./website.controller.js";
 
 const UserController = {
     createUser,
@@ -50,6 +51,10 @@ const ContentController = {
     
 }
 
+const WebsiteController = {
+    getWebsiteContent
+}
 
 
-export { UserController , DomainController , SectionController ,PageController , ContentController};
+
+export { UserController , DomainController , SectionController ,PageController , ContentController,WebsiteController};

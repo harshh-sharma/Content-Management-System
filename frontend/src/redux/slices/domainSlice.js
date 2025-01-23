@@ -98,6 +98,8 @@ const domainSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getDomains.fulfilled, (state, action) => {
+        console.log(action.payload.data);
+        
         state.domains = action?.payload?.data?.data;
       })
       .addCase(updateDomain.fulfilled,(state,action) => {
