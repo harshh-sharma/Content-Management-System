@@ -74,7 +74,7 @@ const Dashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {users &&
+            {users && users?.length > 0 &&
               users.map((user, index) => (
                 <tr
                   key={user._id}
