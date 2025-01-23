@@ -42,7 +42,7 @@ export const getWebsiteContent =  async (req, res) => {
         }
 
         // Respond with the aggregated data
-        res.json(result);
+        // res.json(result);
         return res.status(StatusCodes.OK).json({
             success:true,
             message:'Successfully get content related to this website',
