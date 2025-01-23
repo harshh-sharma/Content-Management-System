@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { getSections, addSection, updateSection, deleteSection } from '../redux/slices/sectionSlice';
@@ -8,7 +8,6 @@ import logoutUser from '../utils/logoutFunction';
 
 const Section = () => {
   const navigate = useNavigate();
-
   const token = useSelector(store => store?.auth['x-access-token']);
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -24,27 +23,26 @@ const Section = () => {
 
   // Add/Edit Section State
   const [newSection, setNewSection] = useState({ name: '', order: '' });
-  const [updatedSection, setUpdatedSection] = useState({ name: '', order: '',_id: '' });
+  const [updatedSection, setUpdatedSection] = useState({ name: '', order: '', _id: '' });
+
+  const fetchSections = useCallback(async () => {
+    try {
+      setLoading(true); // Start loading
+      const response = await dispatch(getSections({ id, token }));
+      console.log(response);
+      if (!response?.payload?.success && (response?.payload?.message === 'Token has expired. Please log in again.' || response?.payload?.message === 'Invalid Token')) {
+        logoutUser(navigate, dispatch);
+      }
+      setLoading(false); // Stop loading
+    } catch (err) {
+      setLoading(false); // Stop loading in case of error
+      console.error(err);
+    }
+  }, [dispatch, id, token, navigate]);
 
   useEffect(() => {
-    const fetchSections = async () => {
-      try {
-        setLoading(true); // Start loading
-        const response = await dispatch(getSections({ id, token }));
-        console.log(response);
-        if(!response?.payload?.success && (response?.payload?.message == 'Token has expired. Please log in again.' || response?.payload?.message == 'Invalid Token')){
-          logoutUser(navigate,dispatch);
-        }
-        
-        setLoading(false); // Stop loading
-      } catch (err) {
-        setLoading(false); // Stop loading in case of error
-        console.error(err);
-      }
-    };
-
     fetchSections();
-  }, [dispatch, id, token]);
+  }, [fetchSections]);
 
   // Handle input change for Add/Edit Section Modal
   const handleSectionChange = (e, setSection) => {
@@ -56,10 +54,10 @@ const Section = () => {
   const handleAddSection = async (e) => {
     e.preventDefault();
     if (newSection.name && newSection.order) {
-      await dispatch(addSection({ ...newSection,page_id:id, token }));
-      await dispatch(getSections({id,token}));
+      await dispatch(addSection({ ...newSection, page_id: id, token }));
+      await fetchSections(); // Re-fetch the sections after adding
       setShowAddModal(false);
-      setNewSection({ name: '', order: ''});
+      setNewSection({ name: '', order: '' });
     }
   };
 
@@ -68,7 +66,7 @@ const Section = () => {
     e.preventDefault();
     if (updatedSection.name && updatedSection.order) {
       await dispatch(updateSection({ ...updatedSection, token }));
-      await dispatch(getSections({id,token}));
+      await fetchSections(); // Re-fetch the sections after updating
       setShowEditModal(false);
     }
   };
@@ -76,7 +74,7 @@ const Section = () => {
   // Delete Section Handler
   const handleDeleteSection = async () => {
     await dispatch(deleteSection({ id: sectionToDelete, token }));
-    await dispatch(getSections({token,id}));
+    await fetchSections(); // Re-fetch the sections after deletion
     setShowDeleteModal(false);
   };
 
@@ -96,33 +94,45 @@ const Section = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {sections?.length > 0 ? (
           sections.map((section) => (
-            <Link to={`/${section?._id}/contents`}><div
-              key={section._id}
-              className="relative bg-gradient-to-r from-blue-500 to-purple-600 text-white flex flex-col justify-between p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 ease-in-out transform hover:scale-105"
-            >
-              <h2 className="text-2xl font-semibold mb-4 text-center">{section?.name}</h2>
-              <div className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <FaSortNumericDown className="text-white text-lg mr-2" />
-                  <h3 className="text-lg font-medium">Order: {section?.order}</h3>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => { setSectionToEdit(section); setUpdatedSection(section); setShowEditModal(true); }}
-                    className="text-blue-300 hover:text-blue-400"
-                  >
-                    <FaEdit size={20} />
-                  </button>
-                  <button
-                    onClick={() => { setSectionToDelete(section._id); setShowDeleteModal(true); }}
-                    className="text-red-500 hover:text-red-600"
-                  >
-                    <FaTrash size={20} />
-                  </button>
+              <div
+               key={section._id}
+              onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/${section?._id}/contents`)
+              }}    
+                className="relative bg-gradient-to-r from-blue-500 to-purple-600 text-white flex flex-col justify-between p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 ease-in-out transform hover:scale-105"
+              >
+                <h2 className="text-2xl font-semibold mb-4 text-center">{section?.name}</h2>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center">
+                    <FaSortNumericDown className="text-white text-lg mr-2" />
+                    <h3 className="text-lg font-medium">Order: {section?.order}</h3>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={(e) => { 
+                        e.stopPropagation(); // Stop event from bubbling up
+                        setSectionToEdit(section); 
+                        setUpdatedSection(section); 
+                        setShowEditModal(true); 
+                      }}
+                      className="text-blue-300 hover:text-blue-400"
+                    >
+                      <FaEdit size={20} />
+                    </button>
+                    <button
+                      onClick={(e) => { 
+                        e.stopPropagation(); // Stop event from bubbling up
+                        setSectionToDelete(section._id); 
+                        setShowDeleteModal(true); 
+                      }}
+                      className="text-red-500 hover:text-red-600"
+                    >
+                      <FaTrash size={20} />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-            </Link>
           ))
         ) : (
           <div className="text-2xl text-center text-gray-500">No sections found.</div>
@@ -150,7 +160,10 @@ const Section = () => {
                   id="name"
                   name="name"
                   value={newSection.name}
-                  onChange={(e) => handleSectionChange(e, setNewSection)}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    handleSectionChange(e, setNewSection)
+                  }}
                   className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
                   required
                 />
@@ -162,7 +175,10 @@ const Section = () => {
                   id="order"
                   name="order"
                   value={newSection.order}
-                  onChange={(e) => handleSectionChange(e, setNewSection)}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    handleSectionChange(e, setNewSection);
+                  }}
                   className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
                   required
                 />
@@ -200,7 +216,10 @@ const Section = () => {
                   id="name"
                   name="name"
                   value={updatedSection.name}
-                  onChange={(e) => handleSectionChange(e, setUpdatedSection)}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    handleSectionChange(e, setUpdatedSection)
+                  }}
                   className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
                   required
                 />
@@ -212,7 +231,10 @@ const Section = () => {
                   id="order"
                   name="order"
                   value={updatedSection.order}
-                  onChange={(e) => handleSectionChange(e, setUpdatedSection)}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    handleSectionChange(e, setUpdatedSection)
+                  }}
                   className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
                   required
                 />
@@ -220,7 +242,10 @@ const Section = () => {
               <div className="flex justify-end gap-4">
                 <button
                   type="button"
-                  onClick={() => setShowEditModal(false)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowEditModal(false)
+                  }}
                   className="py-2 px-4 bg-gray-300 rounded-lg hover:bg-gray-400 transition-colors"
                 >
                   Cancel
@@ -246,13 +271,19 @@ const Section = () => {
             <div className="flex justify-end gap-4">
               <button
                 type="button"
-                onClick={() => setShowDeleteModal(false)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowDeleteModal(false)
+                }}
                 className="py-2 px-4 bg-gray-300 rounded-lg hover:bg-gray-400 transition-colors"
               >
                 Cancel
               </button>
               <button
-                onClick={handleDeleteSection}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteSection();
+                }}
                 className="py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-500 transition-colors"
               >
                 Delete

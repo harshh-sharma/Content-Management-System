@@ -22,13 +22,15 @@ const Domain = () => {
     dispatch(getDomains());
   }, [dispatch]);
 
-  const handleRedirect = (url) => {
+  const handleRedirect = (e, url) => {
+    e.preventDefault();
+    e.stopPropagation();
     window.open(url, "_blank");
   };
 
   const handleInputChange = (e) => {
     e.preventDefault();
-    e.stopPropagation(); 
+    e.stopPropagation();
 
     const { name, value } = e.target;
     setNewDomain({
@@ -43,13 +45,13 @@ const Domain = () => {
 
     if (newDomain.name && newDomain.url) {
       newDomain.token = token;
-      const response = await dispatch(addDomain({...newDomain,token}));
-      console.log("response",response);
-      
-      if(!response?.payload?.success && (response?.payload?.message == 'Token has expired. Please log in again.' || response?.payload?.message == 'Invalid Token')){
-          logoutUser(navigate,dispatch);
-      }else{
-        if(response?.payload?.success){
+      const response = await dispatch(addDomain({ ...newDomain, token }));
+      console.log("response", response);
+
+      if (!response?.payload?.success && (response?.payload?.message == 'Token has expired. Please log in again.' || response?.payload?.message == 'Invalid Token')) {
+        logoutUser(navigate, dispatch);
+      } else {
+        if (response?.payload?.success) {
           await dispatch(getDomains());
         }
       }
@@ -61,7 +63,6 @@ const Domain = () => {
   const handleEditInputChange = (e) => {
     e.preventDefault();
     e.stopPropagation();
-
     const { name, value } = e.target;
     setDomainToEdit({
       ...domainToEdit,
@@ -74,27 +75,26 @@ const Domain = () => {
     e.stopPropagation(); // Stop the event from bubbling up
 
     if (domainToEdit.name && domainToEdit.url) {
-      await dispatch(updateDomain({...domainToEdit,token}));
-      // await dispatch(getDomains());
+      await dispatch(updateDomain({ ...domainToEdit, token }));
       setShowEditModal(false);
     }
   };
 
-  const handleDeleteDomain = async (e,id) => {
+  const handleDeleteDomain = async (e, id) => {
     e.preventDefault();
     e.stopPropagation(); // Stop the event from bubbling up
 
     if (window.confirm("Are you sure you want to delete this domain?")) {
-      await dispatch(deleteDomain({id,token}));
+      await dispatch(deleteDomain({ id, token }));
       await dispatch(getDomains());
     }
   };
 
-  const naviagateToPage = (e,id) => {
+  const naviagateToPage = (e, id) => {
     e.preventDefault();
-    navigate(`/${id}/pages`)
+    e.stopPropagation();
+    navigate(`/${id}/pages`);
   }
-
 
   return (
     <div className="flex flex-col items-center p-10 bg-gradient-to-r from-gray-100 to-gray-300 min-h-screen">
@@ -106,13 +106,21 @@ const Domain = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
         {domains?.length > 0 ? (
           domains.map((website, index) => (
-            <div key={index} onClick={(e) => naviagateToPage(e,website?._id)} className="relative w-full sm:w-72 md:w-80 lg:w-96 p-6 bg-white rounded-xl shadow-lg hover:scale-105 transform transition-all duration-300 hover:shadow-2xl hover:bg-gray-200">
-              
+            <div
+              key={index}
+              onClick={(e) => naviagateToPage(e, website?._id)}
+              className="relative w-full sm:w-72 md:w-80 lg:w-96 p-6 bg-white rounded-xl shadow-lg hover:scale-105 transform transition-all duration-300 hover:shadow-2xl hover:bg-gray-200"
+            >
+
               {/* Edit and Delete Buttons at the top-right */}
               <div className="absolute top-2 right-2 flex gap-4">
                 {/* Edit Button */}
                 <button
-                  onClick={() => { setDomainToEdit(website); setShowEditModal(true); }}
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent bubbling
+                    setDomainToEdit(website);
+                    setShowEditModal(true);
+                  }}
                   className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-400 transition-colors shadow-md"
                 >
                   <FaEdit className="text-lg" />
@@ -120,7 +128,10 @@ const Domain = () => {
 
                 {/* Delete Button */}
                 <button
-                  onClick={(e) => handleDeleteDomain(e,website._id)}
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent bubbling
+                    handleDeleteDomain(e, website._id);
+                  }}
                   className="p-2 bg-gray-600 text-white rounded-full hover:bg-gray-500 transition-colors shadow-md"
                 >
                   <FaTrashAlt className="text-lg" />
@@ -144,7 +155,7 @@ const Domain = () => {
 
               {/* Button for Redirect */}
               <button
-                onClick={() => handleRedirect(website.url)}
+                onClick={(e) => handleRedirect(e, website.url)}
                 className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg text-lg font-semibold hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50 transition-colors"
               >
                 Visit Website
@@ -211,7 +222,7 @@ const Domain = () => {
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">Edit Domain</h2>
-            <form onSubmit={(e) => handleUpdateDomain(e)}>
+            <form onSubmit={handleUpdateDomain}>
               <div className="mb-4">
                 <label htmlFor="name" className="block text-gray-700">Domain Name</label>
                 <input
@@ -257,12 +268,14 @@ const Domain = () => {
       )}
 
       {/* Floating Add Button */}
-      {userRole && userRole == 'ADMIN' || userRole == 'SUPERADMIN' && <button
-        onClick={() => setShowModal(true)}
-        className="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 text-white flex items-center justify-center rounded-full shadow-lg hover:scale-110 transform transition-all duration-300 ease-in-out hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
-      >
-        <span className="text-4xl font-bold">+</span>
-      </button>}
+      {(userRole && (userRole == 'ADMIN' || userRole == 'SUPERADMIN')) && (
+        <button
+          onClick={() => setShowModal(true)}
+          className="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 text-white flex items-center justify-center rounded-full shadow-lg hover:scale-110 transform transition-all duration-300 ease-in-out hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
+        >
+          <span className="text-4xl font-bold">+</span>
+        </button>
+      )}
     </div>
   );
 };

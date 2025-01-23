@@ -58,7 +58,7 @@ const Page = () => {
   // Handle input change for Edit Page Modal
   const handleEditPageChange = (e) => {
     e.preventDefault();
-    e.stopPropagation(); // Stop the event from bubbling 
+    e.stopPropagation();
 
     const { name, value } = e.target;
     setUpdatedPage({ ...updatedPage, [name]: value });
@@ -83,7 +83,7 @@ const Page = () => {
   // Edit Page Submit Handler
   const handleUpdatePage = async (e) => {
     e.preventDefault();
-    e.stopPropagation(); // Stop the event from bubbling up
+    e.stopPropagation();
 
     if (updatedPage.title && updatedPage.slug) {
       updatedPage.token = token;
@@ -100,7 +100,7 @@ const Page = () => {
   // Delete Page Handler
   const handleDeletePage = async (e) => {
     e.preventDefault();
-    e.stopPropagation(); // Stop the event from bubbling up
+    e.stopPropagation();
     const response = await dispatch(deletePage({ pageToDelete, token }));
     if (!response?.payload?.success && (response?.payload?.message == 'Token has expired. Please log in again.' || response?.payload?.message == 'Invalid Token')) {
       logoutUser(navigate, dispatch);
@@ -114,13 +114,13 @@ const Page = () => {
     e.preventDefault();
     e.stopPropagation();
 
-    setPageToEdit(page);  // Set the page you're editing
+    setPageToEdit(page);
     setUpdatedPage({
       title: page?.title,
       slug: page?.slug,
       id: page?._id
-    }); // Set the title and slug for the Edit modal form
-    setShowEditModal(true); // Open the modal
+    });
+    setShowEditModal(true);
   };
 
   const navigateToSection = (e, pageId) => {
@@ -133,7 +133,7 @@ const Page = () => {
     <div className="container mx-auto p-4">
       {/* Back Button */}
       <button
-        onClick={() => navigate(-1)} // Navigate back to the previous page
+        onClick={() => navigate(-1)}
         className="text-xl text-blue-600 flex items-center gap-2 mb-4"
       >
         <FaArrowLeft size={24} /> Back
@@ -153,13 +153,14 @@ const Page = () => {
               {/* Edit and Delete Icons at the top right */}
               <div className="absolute top-2 right-2 flex gap-2">
                 <button
-                  onClick={() => handleEditButtonClick(e, page)} // Using the function to set the values
+                  onClick={(e) => handleEditButtonClick(e, page)}
                   className="text-blue-500 hover:text-blue-600"
                 >
                   <FaEdit size={20} />
                 </button>
                 <button
                   onClick={(e) => {
+                    e.stopPropagation(); // Prevent the click from bubbling
                     setPageToDelete(page._id);
                     setShowDeleteModal(true);
                   }}
@@ -259,7 +260,7 @@ const Page = () => {
                   type="text"
                   id="title"
                   name="title"
-                  value={updatedPage.title} // Ensure this is the updatedPage state
+                  value={updatedPage.title}
                   onChange={handleEditPageChange}
                   className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
                   required
@@ -271,7 +272,7 @@ const Page = () => {
                   type="text"
                   id="slug"
                   name="slug"
-                  value={updatedPage.slug} // Ensure this is the updatedPage state
+                  value={updatedPage.slug}
                   onChange={handleEditPageChange}
                   className="w-full p-3 mt-2 border border-gray-300 rounded-lg"
                   required
@@ -306,7 +307,10 @@ const Page = () => {
             <div className="flex justify-end gap-4">
               <button
                 type="button"
-                onClick={() => setShowDeleteModal(false)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowDeleteModal(false);
+                }}
                 className="py-2 px-4 bg-gray-300 rounded-lg hover:bg-gray-400 transition-colors"
               >
                 Cancel
