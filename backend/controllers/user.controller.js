@@ -1,5 +1,6 @@
 import {StatusCodes} from "http-status-codes";
 import User from "../models/user.model.js";
+
 // Create a new user
 export const createUser = async (req, res) => {
     try {
@@ -27,141 +28,183 @@ export const createUser = async (req, res) => {
         token
       });
     } catch (error) {
+      console.error("Error creating user:", error);
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: error.message,
+        message: error.message || 'An error occurred while creating the user',
       });
     }
-  };
+};
   
-
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
     const isUserExist = await User.findOne({ email }).select("+password");
 
     if (!isUserExist) {
-      return res.status(400).json({
+      return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: "user are not found",
+        message: "User not found",
       });
     }
 
     const isPasswordCorrect = await isUserExist.correctPassword(password);
 
     if (!isPasswordCorrect) {
-      return res.status(400).json({
+      return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: "invalid Password",
+        message: "Invalid password",
       });
     }
 
     const token = await isUserExist.generateJWTToken();
 
     if (!token) {
-      return res.status(500).json({
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Something went wrong Please try again",
+        message: "Something went wrong. Please try again",
       });
     }
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
       success: true,
-      message: "User successfully loggedIn",
-      user:isUserExist,
-      role:isUserExist?.role,
+      message: "User successfully logged in",
+      user: isUserExist,
+      role: isUserExist?.role,
       token,
     });
   } catch (error) {
-    return res.status(500).json({
+    console.error("Error logging in user:", error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: error.message,
+      message: error.message || 'An error occurred during login',
     });
   }
 };
 
 // Get all users
-export const getUsers = (req, res) => {
-  User.find()
-    .then((users) => res.json(users))
-    .catch((err) => res.status(400).json(err));
+export const getUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Successfully retrieved all users',
+      data: users
+    });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: error.message || 'An error occurred while fetching users',
+    });
+  }
 };
 
 // Get a user by ID
-export const getUserById = (req, res) => {
-  User.findById(req.params.id)
-    .then((user) => res.json(user))
-    .catch((err) => res.status(400).json(err));
+export const getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Successfully retrieved user',
+      data: user
+    });
+  } catch (error) {
+    console.error("Error fetching user by ID:", error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: error.message || 'An error occurred while fetching the user',
+    });
+  }
 };
 
 // Update a user by ID
 export const updateUser = async (req, res) => {
   try {
-    const {id} = req.user;
+    const { id } = req.user;
 
-    const user = await User.findByIdAndUpdate(id,{...req.body},{new:true});
-    console.log("user",user);
-    
-    if(!user){
+    const user = await User.findByIdAndUpdate(id, { ...req.body }, { new: true });
+    if (!user) {
       return res.status(StatusCodes.BAD_REQUEST).json({
-        success:false,
-        message:"something went wrong"
-      })
+        success: false,
+        message: "User not found or update failed",
+      });
     }
 
     return res.status(StatusCodes.OK).json({
-      success:true,
-      message:'user successfully updated',
-      data:user
-    })
+      success: true,
+      message: 'User successfully updated',
+      data: user
+    });
   } catch (error) {
+    console.error("Error updating user:", error);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      success:false,
-      message:error?.message
-    })
+      success: false,
+      message: error.message || 'An error occurred while updating the user',
+    });
   }
 };
 
 // Delete a user by ID
-export const deleteUser = (req, res) => {
-  User.findByIdAndDelete(req.params.id)
-    .then(() => res.json({ message: "User deleted successfully" }))
-    .catch((err) => res.status(400).json(err));
+export const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'User successfully deleted'
+    });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: error.message || 'An error occurred while deleting the user',
+    });
+  }
 };
 
-export const updateUserRole = async (req,res) => {
+// Update user role
+export const updateUserRole = async (req, res) => {
   try {
-    console.log("calling role",req.params);
-    
-    const {id} = req.params;
-    console.log("req",req.params);
-    
-    
+    const { id } = req.params;
+
     const isUserExist = await User.findById(id);
-    if(!isUserExist){
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        success:false,
-        message:'user not found'
-      })
+    if (!isUserExist) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: 'User not found',
+      });
     }
 
-    const user = await User.findByIdAndUpdate(id,req.body,{new:true});
-    if(!user){
+    const user = await User.findByIdAndUpdate(id, req.body, { new: true });
+    if (!user) {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        success:false,
-        message:'something went wrong !!'
-      })
+        success: false,
+        message: 'Failed to update user role',
+      });
     }
 
     return res.status(StatusCodes.OK).json({
-      success:true,
-      message:'user role successfully updated',
-      data:user
-    })
+      success: true,
+      message: 'User role successfully updated',
+      data: user
+    });
   } catch (error) {
+    console.error("Error updating user role:", error);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      success:false,
-      message:error.message
-    })
+      success: false,
+      message: error.message || 'An error occurred while updating user role',
+    });
   }
-}
+};

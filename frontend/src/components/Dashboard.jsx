@@ -2,9 +2,12 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios'; // Assuming Axios for API requests
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllUsers, updateUser } from '../redux/slices/authSlice';
+import { useNavigate } from 'react-router-dom';
+import logoutUser from "../utils/logoutFunction";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const token = useSelector((store) => store?.auth['x-access-token']);
   const currentUserId = useSelector((store) => store?.auth?.user?._id); // Assuming `user.id` is available in the auth slice
  
@@ -18,11 +21,14 @@ const Dashboard = () => {
   const fetchUsers = async () => {
     try {
       const response = await dispatch(getAllUsers({ token })); // Replace with your API endpoint
+      console.log("response",response?.payload?.message);
+      
       if(response?.payload?.message == 'Token has expired. Please log in again.'){
         logoutUser(navigate,dispatch);
-     }
+     }else{
       setUsers(response?.payload);
       setLoading(false);
+     }
     } catch (err) {
       setError('Failed to fetch users');
       setLoading(false);

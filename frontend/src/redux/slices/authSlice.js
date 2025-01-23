@@ -21,9 +21,9 @@ export const getAllUsers = createAsyncThunk(
           },
         }
       );
-      return response.data;
+      return response;
     } catch (error) {
-      return rejectWithValue(error?.response?.data?.success);
+      return rejectWithValue(error?.response?.data);
     }
   }
 );

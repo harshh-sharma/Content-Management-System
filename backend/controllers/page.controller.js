@@ -21,85 +21,157 @@ export const createPage = async (req, res) => {
           data: pages
       });
   } catch (error) {
+      console.error("Error creating page:", error);
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
           success: false,
-          message: error.message,
+          message: error.message || 'An error occurred while creating the page',
           data: []
       });
   }
 };
 
-
 // Get all pages
-export const getPages = (req, res) => {
-    Page.find()
-        .then(pages => res.json(pages))
-        .catch(err => res.status(400).json(err));
+export const getPages = async (req, res) => {
+  try {
+      const pages = await Page.find();
+      return res.status(StatusCodes.OK).json({
+          success: true,
+          message: 'Successfully retrieved pages',
+          data: pages
+      });
+  } catch (error) {
+      console.error("Error fetching pages:", error);
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: error.message || 'An error occurred while fetching pages',
+          data: []
+      });
+  }
 };
 
 // Get a page by ID
-export const getPageById = (req, res) => {
-    Page.findById(req.params.id)
-        .then(page => res.json(page))
-        .catch(err => res.status(400).json(err));
+export const getPageById = async (req, res) => {
+  try {
+      const page = await Page.findById(req.params.id);
+      if (!page) {
+          return res.status(StatusCodes.NOT_FOUND).json({
+              success: false,
+              message: 'Page not found'
+          });
+      }
+      return res.status(StatusCodes.OK).json({
+          success: true,
+          message: 'Successfully retrieved page',
+          data: page
+      });
+  } catch (error) {
+      console.error("Error fetching page by ID:", error);
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: error.message || 'An error occurred while fetching the page'
+      });
+  }
 };
 
 // Update a page by ID
-export const updatePage = (req, res) => {
-    Page.findByIdAndUpdate(req.params.id, req.body, { new: true })
-        .then(updatedPage => res.json(updatedPage))
-        .catch(err => res.status(400).json(err));
+export const updatePage = async (req, res) => {
+  try {
+      const updatedPage = await Page.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      if (!updatedPage) {
+          return res.status(StatusCodes.NOT_FOUND).json({
+              success: false,
+              message: 'Page not found'
+          });
+      }
+      return res.status(StatusCodes.OK).json({
+          success: true,
+          message: 'Page updated successfully',
+          data: updatedPage
+      });
+  } catch (error) {
+      console.error("Error updating page:", error);
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: error.message || 'An error occurred while updating the page'
+      });
+  }
 };
 
 // Delete a page by ID
-export const deletePage = (req, res) => {
-    Page.findByIdAndDelete(req.params.id)
-        .then(() => res.json({ message: 'Page deleted successfully' }))
-        .catch(err => res.status(400).json(err));
+export const deletePage = async (req, res) => {
+  try {
+      const deletedPage = await Page.findByIdAndDelete(req.params.id);
+      if (!deletedPage) {
+          return res.status(StatusCodes.NOT_FOUND).json({
+              success: false,
+              message: 'Page not found'
+          });
+      }
+      return res.status(StatusCodes.OK).json({
+          success: true,
+          message: 'Page deleted successfully'
+      });
+  } catch (error) {
+      console.error("Error deleting page:", error);
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: error.message || 'An error occurred while deleting the page'
+      });
+  }
 };
 
+// Get pages by domain ID
 export const getPagesByDomain = async (req, res) => {
-    try {
+  try {
       const { id } = req.params;
-      
-      const pages = await Page.find({ domain_id : id });
-  
-      if (!pages.length) {
-        return res.status(404).json({ 
-            success:true,
-            message: 'No pages found for this domain' ,
-            data:[]
-        });
-      }
-      res.status(200).json({
-        success:true,
-        message:'Successfully get all pages',
-        data:pages
-    });
-    } catch (err) {
-      res.status(500).json({ message: 'Failed to fetch pages', error: err.message });
-    }
-  };
+      const pages = await Page.find({ domain_id: id });
 
-  export const getSectionsByPages = async (req, res) => {
-    try {
-      const { id } = req.params;
-      
-      const sections = await Section.find({ page_id : id });
-      
-      if (!sections) {
-        return res.status(404).json({ 
-            success:true,
-            message: 'No section found for this page' ,
-            data:[]
-        });
+      if (!pages.length) {
+          return res.status(StatusCodes.NOT_FOUND).json({
+              success: false,
+              message: 'No pages found for this domain',
+              data: []
+          });
       }
-      res.status(200).json({
-        success:true,
-        message:'Successfully get all sections',
-        data:sections
-    });
-    } catch (err) {
-      res.status(500).json({ message: 'Failed to fetch pages', error: err.message });
-    }
-  };
+      return res.status(StatusCodes.OK).json({
+          success: true,
+          message: 'Successfully retrieved pages',
+          data: pages
+      });
+  } catch (error) {
+      console.error("Error fetching pages by domain:", error);
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: error.message || 'An error occurred while fetching pages',
+          data: []
+      });
+  }
+};
+
+// Get sections by page ID
+export const getSectionsByPages = async (req, res) => {
+  try {
+      const { id } = req.params;
+      const sections = await Section.find({ page_id: id });
+
+      if (!sections.length) {
+          return res.status(StatusCodes.NOT_FOUND).json({
+              success: false,
+              message: 'No sections found for this page',
+              data: []
+          });
+      }
+      return res.status(StatusCodes.OK).json({
+          success: true,
+          message: 'Successfully retrieved sections',
+          data: sections
+      });
+  } catch (error) {
+      console.error("Error fetching sections by page:", error);
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: error.message || 'An error occurred while fetching sections',
+          data: []
+      });
+  }
+};

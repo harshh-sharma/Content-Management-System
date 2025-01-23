@@ -106,6 +106,8 @@ const isUserAuthenticated = async (req, res, next) => {
         req.user = decodedToken;
         next();
     } catch (err) {
+        console.log("err",err);
+        
         if (err.name === 'TokenExpiredError') {
             return res.status(401).json({
                 success: false,
