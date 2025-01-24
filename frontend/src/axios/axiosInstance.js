@@ -5,7 +5,7 @@ const BaseUrl = 'https://content-management-system-ieu3.onrender.com/api/v1';
 
 // Create an axios instance
 const axiosInstance = axios.create({
-  baseURL: BaseUrl, 
+  baseURL: BaseUrl,
   withCredentials: false
 });
 
