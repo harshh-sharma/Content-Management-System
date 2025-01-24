@@ -96,7 +96,14 @@ const sectionSlice = createSlice({
     // reducers:{}
     extraReducers:(builder) => {
         builder.addCase(getSections?.fulfilled,(state,action) => {
+          console.log("action?.payload?.data",action?.payload?.data);
+          
             state.sections = action?.payload?.data;
+        })
+        builder.addCase(getSections?.rejected,(state,action) => {
+          console.log("action?.payload?.data",action?.payload?.data);
+          
+            state.sections = [];
         })
     }
 })

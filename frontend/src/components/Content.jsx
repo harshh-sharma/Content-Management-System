@@ -105,6 +105,8 @@ const Content = () => {
   
 
   const handleDeleteContent = async (contentId) => {
+    console.log("contentId",contentId);
+    
     const response = await dispatch(deleteContent({ contentId, token }));
     if (response?.payload?.message === "Token has expired. Please log in again.") {
       logoutUser(navigate, dispatch);
@@ -327,7 +329,7 @@ const ContentCard = ({ content, onEdit, onDelete }) => (
         <FiEdit size={18} />
       </button>
       <button
-        onClick={() => onDelete(content.id)}
+        onClick={() => onDelete(content._id)}
         className="p-2 bg-red-600 text-white rounded-full shadow hover:bg-red-700 transition-transform transform hover:scale-110 duration-300"
         aria-label="Delete"
       >

@@ -1,5 +1,7 @@
+import Content from '../models/content.model.js';
 import Section from '../models/section.model.js';
 import { StatusCodes } from 'http-status-codes';
+import cloudinary from "cloudinary";
 
 // Create a new section
 export const createSection = async (req, res) => {
@@ -86,19 +88,41 @@ export const updateSection = async (req, res) => {
     }
 };
 
-// Delete a section by ID
 export const deleteSection = async (req, res) => {
     try {
-        const deletedSection = await Section.findByIdAndDelete(req.params.id);
-        if (!deletedSection) {
+        const { id } = req.params;
+        
+        // Step 1: Find the section
+        const section = await Section.findById(id);
+        console.log("section",section);
+        
+        if (!section) {
             return res.status(StatusCodes.NOT_FOUND).json({
                 success: false,
                 message: 'Section not found'
             });
         }
+
+        // Step 2: Find and delete all content related to the section
+        const content = await Content.find({ section_id: section._id });
+        console.log("contents",content);
+        
+        for (let cont of content) {
+            // Step 3: Delete image from Cloudinary if public_id exists
+            if (cont.content_data.public_id) {
+                await cloudinary.v2.uploader.destroy(cont.content_data.public_id);
+            }
+
+            // Step 4: Delete the content from the database
+            await Content.findByIdAndDelete(cont._id);
+        }
+
+        // Step 5: Delete the section
+        await Section.findByIdAndDelete(id);
+
         return res.status(StatusCodes.OK).json({
             success: true,
-            message: 'Section deleted successfully'
+            message: 'Section and its associated content deleted successfully'
         });
     } catch (error) {
         console.error("Error deleting section:", error);
@@ -108,3 +132,4 @@ export const deleteSection = async (req, res) => {
         });
     }
 };
+

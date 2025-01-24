@@ -66,7 +66,7 @@ const Section = () => {
     e.preventDefault();
     if (updatedSection.name && updatedSection.order) {
       await dispatch(updateSection({ ...updatedSection, token }));
-      await fetchSections(); // Re-fetch the sections after updating
+      await dispatch(getSections({ id, token }));
       setShowEditModal(false);
     }
   };

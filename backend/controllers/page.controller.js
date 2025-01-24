@@ -1,6 +1,8 @@
 import { StatusCodes } from 'http-status-codes';
 import Page from '../models/page.model.js';
 import Section from '../models/section.model.js';
+import Content from '../models/content.model.js';
+import cloudinary from "cloudinary"
 
 // Create a new page
 export const createPage = async (req, res) => {
@@ -97,28 +99,55 @@ export const updatePage = async (req, res) => {
   }
 };
 
-// Delete a page by ID
 export const deletePage = async (req, res) => {
-  try {
-      const deletedPage = await Page.findByIdAndDelete(req.params.id);
-      if (!deletedPage) {
-          return res.status(StatusCodes.NOT_FOUND).json({
-              success: false,
-              message: 'Page not found'
-          });
-      }
-      return res.status(StatusCodes.OK).json({
-          success: true,
-          message: 'Page deleted successfully'
-      });
-  } catch (error) {
-      console.error("Error deleting page:", error);
-      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-          success: false,
-          message: error.message || 'An error occurred while deleting the page'
-      });
-  }
+    try {
+        const { id } = req.params;
+        
+        // Step 1: Find the page and related sections and content
+        const page = await Page.findById(id);
+        if (!page) {
+            return res.status(StatusCodes.NOT_FOUND).json({
+                success: false,
+                message: 'Page not found'
+            });
+        }
+
+        // Step 2: Find all sections related to the page
+        const sections = await Section.find({ page_id: id });
+
+        // Step 3: Delete associated content for each section and delete the content's image from Cloudinary
+        for (let section of sections) {
+            const content = await Content.find({ section_id: section._id });
+            for (let cont of content) {
+                // Delete the image from Cloudinary if it exists
+                if (cont.content_data.public_id) {
+                    await cloudinary.v2.uploader.destroy(cont.content_data.public_id);
+                }
+
+                // Delete the content
+                await Content.findByIdAndDelete(cont._id);
+            }
+
+            // Step 4: Delete the section
+            await Section.findByIdAndDelete(section._id);
+        }
+
+        // Step 5: Delete the page
+        await Page.findByIdAndDelete(id);
+
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            message: 'Page and associated content, sections, and images deleted successfully'
+        });
+    } catch (error) {
+        console.error("Error deleting page:", error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: error.message || 'An error occurred while deleting the page'
+        });
+    }
 };
+
 
 // Get pages by domain ID
 export const getPagesByDomain = async (req, res) => {
