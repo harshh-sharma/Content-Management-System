@@ -89,7 +89,7 @@ const validateGetUsers = (req, res, next) => {
 };
 
 const isUserAuthenticated = async (req, res, next) => {
-    console.log('res--ss',req.headers);
+    // console.log('res--ss',req.headers);
     
     const token = req.headers['x-access-token'];
     console.log("token--=",token);
@@ -134,7 +134,6 @@ const isUserAuthorizied = async (req, res ,next) => {
             message:"user is not authorized"
         })
     }
-
     next();
 }
 

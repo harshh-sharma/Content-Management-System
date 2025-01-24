@@ -88,26 +88,61 @@ export const getContentById = async (req, res) => {
 // Update content by ID
 export const updateContent = async (req, res) => {
     try {
-        const updatedContent = await Content.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedContent) {
+        const { id } = req.params;
+        const { text, isImageUpdated, public_id } = req.body;
+
+        console.log("--Request Body--", req.body); // Text fields
+        console.log("--Uploaded File--", req.file); // Uploaded file details
+
+        // Fetch the existing content by ID
+        const content = await Content.findById(id);
+        if (!content) {
             return res.status(StatusCodes.NOT_FOUND).json({
                 success: false,
-                message: 'Content not found'
+                message: "Content not found",
             });
         }
+
+        const contentData = { text }; // Default content data with updated text
+
+        // Check if the image is updated
+        if (isImageUpdated) {
+            if (req.file) {
+                // If a file is uploaded, delete the old image from Cloudinary
+                if (public_id) {
+                    await cloudinary.v2.uploader.destroy(public_id);
+                }
+
+                // Upload the new image to Cloudinary
+                const result = await cloudinary.v2.uploader.upload(req.file.path);
+                if (result) {
+                    contentData.image_url = result.secure_url;
+                    contentData.public_id = result.public_id;
+                }
+            }
+        }
+
+        // Update the content in the database
+        const updatedContent = await Content.findByIdAndUpdate(
+            id,
+            { content_data: contentData },
+            { new: true } // Return the updated document
+        );
+
         return res.status(StatusCodes.OK).json({
             success: true,
-            message: 'Successfully updated content',
-            data: updatedContent
+            message: "Content successfully updated",
+            data: updatedContent,
         });
     } catch (error) {
         console.error("Error updating content:", error);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             success: false,
-            message: error.message || 'An error occurred while updating content'
+            message: error.message || "An error occurred while updating content",
         });
     }
 };
+
 
 // Delete content by ID
 export const deleteContent = async (req, res) => {

@@ -76,6 +76,7 @@ export const login = createAsyncThunk(
 const logout = () => (dispatch) => {
   localStorage.removeItem('x-access-token');
   localStorage.removeItem('isLoggedIn');
+  localStorage.removeItem('user');
   dispatch(authSlice.actions.logout());
 };
 

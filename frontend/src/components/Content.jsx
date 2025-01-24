@@ -1,34 +1,34 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { getContents, addContent, updateContent, deleteContent } from '../redux/slices/contentSlice';
-import { useNavigate, useParams } from 'react-router-dom';
-import { FiEdit, FiX, FiPlus, FiArrowLeft } from 'react-icons/fi';
-import { AiOutlineLoading } from 'react-icons/ai';
-import logoutUser from '../utils/logoutFunction';
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getContents, addContent, updateContent, deleteContent } from "../redux/slices/contentSlice";
+import { useNavigate, useParams } from "react-router-dom";
+import { FiEdit, FiX, FiPlus, FiArrowLeft } from "react-icons/fi";
+import { AiOutlineLoading } from "react-icons/ai";
+import logoutUser from "../utils/logoutFunction";
+import toast from "react-hot-toast";
 
 const Content = () => {
   const navigate = useNavigate();
-  const token = useSelector((store) => store?.auth['x-access-token']);
+  const token = useSelector((store) => store?.auth["x-access-token"]);
   const { id } = useParams();
   const dispatch = useDispatch();
   const contentList = useSelector((store) => store?.content?.contents);
-  
-  const [newContent, setNewContent] = useState({ content_type: 'text', content_data: { text: '', image_url: '' } });
+
+  const [newContent, setNewContent] = useState({ content_type: "text", content_data: { text: "", image_url: "" } });
+  const [originalContent, setOriginalContent] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [currentContentId, setCurrentContentId] = useState(null);
-  const [previewImage, setPreviewImage] = useState('');
+  const [previewImage, setPreviewImage] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       const response = await dispatch(getContents({ id, token }));
-      if (response?.payload?.message === 'Token has expired. Please log in again.') {
+      if (response?.payload?.message === "Token has expired. Please log in again.") {
         logoutUser(navigate, dispatch);
-      } else {
-        await dispatch(getContents({ id, token }));
       }
       setLoading(false);
     };
@@ -52,7 +52,7 @@ const Content = () => {
 
   const handleAddContent = async () => {
     const response = await dispatch(addContent({ id, ...newContent, selectedFile, token }));
-    if (response?.payload?.message === 'Token has expired. Please log in again.' || response?.payload?.message === 'Invalid Token') {
+    if (response?.payload?.message === "Token has expired. Please log in again." || response?.payload?.message === "Invalid Token") {
       logoutUser(navigate, dispatch);
     } else {
       await dispatch(getContents({ id, token }));
@@ -61,17 +61,52 @@ const Content = () => {
   };
 
   const handleUpdateContent = async () => {
-    const updatedContent = { ...newContent, id: currentContentId };
-    const response = await dispatch(updateContent({ updatedContent, token }));
-    if (response?.payload?.message === 'Token has expired. Please log in again.' || response?.payload?.message === 'Invalid Token') {
-      logoutUser(navigate, dispatch);
+    try {
+      // Ensure text field is not empty for content that includes text
+      if (!newContent.content_data.text.trim() && newContent.content_type !== "image") {
+        toast.error("Content text cannot be empty.");
+        return;
+      }
+  
+      setLoading(true);
+  
+      // Check if the image is updated
+      const isImageUpdated =
+        newContent.content_data.image_url !== originalContent?.content_data?.image_url ||
+        newContent.content_data.public_id !== originalContent?.content_data?.public_id;
+  
+      // Prepare updated content
+      const updatedContent = {
+        ...newContent,
+        id: currentContentId,
+        isImageUpdated, // You can send this to your backend for conditional processing
+      };
+  
+      // Dispatch the update request
+      const response = await dispatch(updateContent({ updatedContent, token }));
+  
+      // Handle token expiration or invalid token
+      if (response?.payload?.message === "Token has expired. Please log in again." || response?.payload?.message === "Invalid Token") {
+        logoutUser(navigate, dispatch);
+      } else if (response.error) {
+        alert("Failed to update content. Please try again.");
+      } else {
+        // Refresh content list
+        await dispatch(getContents({ id, token }));
+        setEditModalOpen(false);
+      }
+    } catch (error) {
+      console.error("Error updating content:", error);
+      alert("An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
-    setEditModalOpen(false);
   };
+  
 
   const handleDeleteContent = async (contentId) => {
     const response = await dispatch(deleteContent({ contentId, token }));
-    if (response?.payload?.message === 'Token has expired. Please log in again.') {
+    if (response?.payload?.message === "Token has expired. Please log in again.") {
       logoutUser(navigate, dispatch);
     } else {
       await dispatch(getContents({ id, token }));
@@ -80,6 +115,7 @@ const Content = () => {
 
   const openEditModal = (content) => {
     setNewContent(content);
+    setOriginalContent(content);
     setCurrentContentId(content.id);
     setEditModalOpen(true);
   };
@@ -88,7 +124,7 @@ const Content = () => {
     setNewContent({
       ...newContent,
       content_type: e.target.value,
-      content_data: e.target.value === 'image' ? { text: '', image_url: '' } : newContent.content_data,
+      content_data: e.target.value === "image" ? { text: "", image_url: "" } : newContent.content_data,
     });
   };
 
@@ -98,10 +134,21 @@ const Content = () => {
   };
 
   const resetForm = () => {
-    setNewContent({ content_type: 'text', content_data: { text: '', image_url: '' } });
+    setNewContent({ content_type: "text", content_data: { text: "", image_url: "" } });
     setSelectedFile(null);
     setModalOpen(false);
     setEditModalOpen(false);
+  };
+
+  const handleCloseModal = () => {
+    const hasUnsavedChanges =
+      newContent.content_data.text !== originalContent?.content_data?.text ||
+      newContent.content_data.image_url !== originalContent?.content_data?.image_url;
+
+    if (hasUnsavedChanges && !confirm("You have unsaved changes. Do you really want to close?")) {
+      return;
+    }
+    resetForm();
   };
 
   const getUserImage = (e) => {
@@ -121,7 +168,6 @@ const Content = () => {
 
   return (
     <div className="p-6 max-w-6xl mx-auto bg-gray-100 min-h-screen relative">
-      {/* Back Arrow */}
       <button
         onClick={() => navigate(-1)}
         className="absolute top-4 left-4 p-2 bg-gray-200 rounded-full shadow-md hover:bg-gray-300 transition-transform transform hover:scale-110 duration-300"
@@ -130,7 +176,6 @@ const Content = () => {
         <FiArrowLeft size={24} className="text-gray-700" />
       </button>
 
-      {/* Add Content Button */}
       <button
         onClick={openAddModal}
         className="fixed bottom-4 right-4 p-4 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-transform transform hover:scale-110 duration-300"
@@ -158,7 +203,7 @@ const Content = () => {
         <Modal
           title="Edit Content"
           isOpen={isEditModalOpen}
-          onClose={resetForm}
+          onClose={handleCloseModal}
           onSubmit={handleUpdateContent}
           newContent={newContent}
           handleContentTypeChange={handleContentTypeChange}
@@ -193,9 +238,23 @@ const Content = () => {
   );
 };
 
-const Modal = ({ title, isOpen, onClose, onSubmit, newContent, handleContentTypeChange, handleFileChange, setNewContent, previewImage, getUserImage, isEditing = false }) => (
+const Modal = ({
+  title,
+  isOpen,
+  onClose,
+  onSubmit,
+  newContent,
+  handleContentTypeChange,
+  handleFileChange,
+  setNewContent,
+  previewImage,
+  getUserImage,
+  isEditing = false,
+}) => (
   <div
-    className={`fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center transition-opacity duration-300 ease-in-out ${isOpen ? 'opacity-100' : 'opacity-0'}`}
+    className={`fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center transition-opacity duration-300 ease-in-out ${
+      isOpen ? "opacity-100" : "opacity-0"
+    }`}
     style={{ zIndex: 100 }}
   >
     <div className="bg-white p-8 rounded-lg shadow-xl w-96 transform transition-transform duration-300 ease-in-out scale-100">
@@ -211,42 +270,40 @@ const Modal = ({ title, isOpen, onClose, onSubmit, newContent, handleContentType
           <option value="text_and_image">Text and Image</option>
           <option value="image">Image</option>
         </select>
-        {newContent.content_type !== 'image' && (
+        {newContent.content_type !== "image" && (
           <textarea
-            placeholder="Text"
             value={newContent.content_data.text}
             onChange={(e) =>
-              setNewContent({
-                ...newContent,
-                content_data: { ...newContent.content_data, text: e.target.value },
-              })
+              setNewContent((prevState) => ({
+                ...prevState,
+                content_data: { ...prevState.content_data, text: e.target.value },
+              }))
             }
-            className="p-3 border rounded w-full mb-4 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            rows="4"
+            placeholder="Enter content text"
+            className="p-3 border rounded w-full h-20 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         )}
-        {newContent.content_type !== 'text' && (
-          <div>
-            <label className="block text-sm font-medium mb-1">Image</label>
-            {previewImage ? (
-              <img src={previewImage} alt="Preview" className="w-full rounded mb-2" />
-            ) : (
-              <input
-                type="file"
-                accept=".jpg,.jpeg,.png,.svg"
-                onChange={getUserImage}
-                className="w-full p-2 bg-gray-50 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            )}
+        {(newContent.content_type === "image" || newContent.content_type === "text_and_image") && (
+          <div className="flex flex-col items-center space-y-4 mt-4">
+            <input type="file" accept="image/*" onChange={getUserImage} className="p-3" />
+            {previewImage && <img src={previewImage} alt="Preview" className="max-h-40 w-auto rounded-md shadow-md" />}
           </div>
         )}
       </div>
-      <div className="flex justify-end space-x-4">
-        <button onClick={onClose} className="p-3 bg-gray-500 text-white rounded shadow hover:bg-gray-600 transition duration-300">
+      <div className="flex justify-end space-x-3">
+        <button
+          onClick={onClose}
+          className="p-3 bg-gray-200 rounded shadow hover:bg-gray-300 transition duration-300"
+        >
           Cancel
         </button>
-        <button onClick={onSubmit} className="p-3 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition duration-300">
-          {isEditing ? 'Update' : 'Add'}
+        <button
+          onClick={onSubmit}
+          className={`p-3 ${isEditing ? "bg-green-600" : "bg-blue-600"} text-white rounded shadow hover:${
+            isEditing ? "bg-green-700" : "bg-blue-700"
+          } transition duration-300`}
+        >
+          {isEditing ? "Update" : "Add"}
         </button>
       </div>
     </div>
@@ -254,30 +311,29 @@ const Modal = ({ title, isOpen, onClose, onSubmit, newContent, handleContentType
 );
 
 const ContentCard = ({ content, onEdit, onDelete }) => (
-  <div className="bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-105 relative flex flex-col">
-    <div className="absolute top-3 right-3 flex space-x-2">
+  <div className="p-4 bg-white shadow rounded-lg relative">
+    {content.content_type === "image" || content.content_type === "text_and_image" ? (
+      <img src={content.content_data.image_url} alt="Content" className="max-h-40 w-auto mb-4 mx-auto rounded-md" />
+    ) : null}
+    {content.content_data.text && (
+      <p className="text-gray-800 text-center">{content.content_data.text}</p>
+    )}
+    <div className="absolute top-2 right-2 flex space-x-2">
       <button
         onClick={() => onEdit(content)}
-        className="p-2 text-blue-600 hover:bg-blue-100 rounded-full transition duration-300"
-        aria-label="Edit Content"
+        className="p-2 bg-yellow-400 text-white rounded-full shadow hover:bg-yellow-500 transition-transform transform hover:scale-110 duration-300"
+        aria-label="Edit"
       >
-        <FiEdit size={20} />
+        <FiEdit size={18} />
       </button>
       <button
-        onClick={() => onDelete(content?._id)}
-        className="p-2 text-red-600 hover:bg-red-100 rounded-full transition duration-300"
-        aria-label="Delete Content"
+        onClick={() => onDelete(content.id)}
+        className="p-2 bg-red-600 text-white rounded-full shadow hover:bg-red-700 transition-transform transform hover:scale-110 duration-300"
+        aria-label="Delete"
       >
-        <FiX size={20} />
+        <FiX size={18} />
       </button>
     </div>
-    <div className="mb-4">
-      <h3 className="text-lg font-semibold text-gray-700">
-        Content Type: <span className="text-blue-600 ml-1 capitalize">{content.content_type.replace('_', ' ')}</span>
-      </h3>
-    </div>
-    {content?.content_data?.text && <p className="text-gray-600 mb-4">{content.content_data.text}</p>}
-    {content?.content_data?.image_url && <img src={content.content_data.image_url} alt="Content" className="rounded-lg object-cover" />}
   </div>
 );
 

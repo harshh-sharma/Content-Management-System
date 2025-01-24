@@ -34,19 +34,19 @@ const validateUpdateContent = (req, res, next) => {
     const { title, body } = req.body;
 
     // Validate content ID format
-    const objectIdRegex = /^[0-9a-fA-F]{24}$/;
-    if (!objectIdRegex.test(id)) {
-        return res.status(400).json({ error: "Invalid content ID format" });
-    }
+    // const objectIdRegex = /^[0-9a-fA-F]{24}$/;
+    // if (!objectIdRegex.test(id)) {
+    //     return res.status(400).json({ error: "Invalid content ID format" });
+    // }
 
     // Validate fields if present
-    if (title && (typeof title !== 'string' || title.trim().length === 0)) {
-        return res.status(400).json({ error: "Title cannot be empty" });
-    }
+    // if (title && (typeof title !== 'string' || title.trim().length === 0)) {
+    //     return res.status(400).json({ error: "Title cannot be empty" });
+    // }
 
-    if (body && (typeof body !== 'string' || body.trim().length === 0)) {
-        return res.status(400).json({ error: "Body cannot be empty" });
-    }
+    // if (body && (typeof body !== 'string' || body.trim().length === 0)) {
+    //     return res.status(400).json({ error: "Body cannot be empty" });
+    // }
 
     next();
 };

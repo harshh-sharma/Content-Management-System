@@ -78,13 +78,18 @@ export const deleteContent = createAsyncThunk(
 export const updateContent = createAsyncThunk(
   "/content/:id",
   async (data, { rejectWithValue }) => {
+    console.log("dataa",data);
+    // return
     try {
       const formData = new FormData();
-      formData.append("content_type", data?.content_type);
-      formData.append("text", data?.content_data?.text);
-      formData.append("file", data?.content_data?.image_url);
+      formData.append("text", data?.updatedContent.content_data?.text);
+      if(data?.updatedContent?.isImageUpdated){
+          formData.append("file", data?.updatedContent?.content_data?.image_url);
+          formData.append("public_id", data?.updatedContent?.content_data?.public_id);
+      }
+      formData.append("isImageUpdated",data?.updatedContent?.isImageUpdated);
 
-      const response = await axiosInstance.put(`/content/${data?.contentId}`, formData, {
+      const response = await axiosInstance.put(`/content/${data?.updatedContent?._id}`, formData, {
         headers: {
           "x-access-token": data?.token,
         },
